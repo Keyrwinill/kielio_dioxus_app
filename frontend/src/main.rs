@@ -1,3 +1,13 @@
+mod app;
+mod components;
+mod pages;
+mod services;
+
+fn main() {
+    dioxus::launch(app::App);
+}
+
+/* Initial 
 use dioxus::prelude::*;
 use shared::NameResponse;
 
@@ -33,3 +43,4 @@ fn app() -> Element {
         }
     }
 }
+*/
