@@ -1,3 +1,6 @@
+use rand::seq::SliceRandom;
+use rand::rng;
+
 use crate::games::dead_mans_draw::engine::add_card_to_play_area;
 
 use super::ability::Ability;
@@ -23,6 +26,9 @@ impl Ability for MapAbility {
 
         ctx.state.map_choices.clear();
 
+        let mut rng = rng();
+        ctx.state.discard.shuffle(&mut rng);
+
         for _ in 0..3 {
             if let Some(card) = ctx.state.discard.pop() {
                 ctx.state.map_choices.push(card);
@@ -36,7 +42,7 @@ impl Ability for MapAbility {
             prompt: "Choose one revealed Map card to replay.".to_string(),
         });
 
-        Some("Map revealed cards from discard.".to_string())
+        Some("Map shuffled discard and revealed cards.".to_string())
     }
 }
 

@@ -1,5 +1,7 @@
 use super::helpers::*;
 
+use crate::games::dead_mans_draw::state::PendingAbility;
+
 #[test]
 fn hook_moves_selected_banked_card_to_play_area() {
     let mut state = GameState::new();
@@ -76,4 +78,48 @@ fn ai_hook_replays_safe_highest_banked_card() {
     assert_eq!(state.players[1].bank.len(), 1);
     assert_eq!(state.play_area.len(), 2);
     assert_eq!(state.play_area[1].suit, Suit::Mermaid);
+}
+
+#[test]
+fn hook_cannot_replay_non_top_card_of_suit_stack() {
+    let mut state = GameState::new();
+
+    state.players[0].bank.push(card(Suit::Cannon, 3));
+    state.players[0].bank.push(card(Suit::Cannon, 8));
+
+    state.phase = GamePhase::WaitingForHookTarget;
+    state.pending_ability = Some(PendingAbility::Hook);
+
+    handle_action(
+        &mut state,
+        GameAction::SelectHookTarget {
+            target_card_index: 0,
+        },
+    );
+
+    assert_eq!(state.players[0].bank.len(), 2);
+    assert!(state.play_area.is_empty());
+}
+
+#[test]
+fn hook_can_replay_top_card_of_suit_stack() {
+    let mut state = GameState::new();
+
+    state.players[0].bank.push(card(Suit::Cannon, 3));
+    state.players[0].bank.push(card(Suit::Cannon, 8));
+
+    state.phase = GamePhase::WaitingForHookTarget;
+    state.pending_ability = Some(PendingAbility::Hook);
+
+    handle_action(
+        &mut state,
+        GameAction::SelectHookTarget {
+            target_card_index: 1,
+        },
+    );
+
+    assert_eq!(state.players[0].bank.len(), 1);
+    assert_eq!(state.play_area.len(), 1);
+    assert_eq!(state.play_area[0].suit, Suit::Cannon);
+    assert_eq!(state.play_area[0].value, 8);
 }

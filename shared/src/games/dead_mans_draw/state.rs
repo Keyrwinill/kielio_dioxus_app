@@ -152,8 +152,37 @@ impl GameState {
                 SelectionOwner::Opponent => {
                     player_index != self.current_player_index
                 }
+                
             },
 
+            _ => false,
+        }
+    }
+
+    pub fn can_select_bank_card(
+        &self,
+        player_index: usize,
+        card_index: usize,
+    ) -> bool {
+        if !self.can_select_player_bank(player_index) {
+            return false;
+        }
+
+        match self.pending_ability {
+            Some(PendingAbility::Cannon) => {
+                self.is_top_card_of_suit_stack(player_index, card_index)
+            }
+            Some(PendingAbility::Sword) => {
+                let Some(card) = self.players[player_index].bank.get(card_index) else {
+                    return false;
+                };
+
+                !self.player_bank_has_suit(self.current_player_index, card.suit)
+            }
+            Some(PendingAbility::Hook) => {
+                player_index == self.current_player_index
+                    && self.is_top_card_of_suit_stack(player_index, card_index)
+            }
             _ => false,
         }
     }
@@ -198,28 +227,13 @@ impl GameState {
         highest_value == Some(card.value)
     }
 
-    pub fn can_select_bank_card(
-        &self,
-        player_index: usize,
-        card_index: usize,
-    ) -> bool {
-        if !self.can_select_player_bank(player_index) {
-            return false;
-        }
+    pub fn opponent_indices(&self) -> Vec<usize> {
+        (0..self.players.len())
+            .filter(|&index| index != self.current_player_index)
+            .collect()
+    }
 
-        match self.pending_ability {
-            Some(PendingAbility::Cannon) => {
-                self.is_top_card_of_suit_stack(player_index, card_index)
-            }
-            Some(PendingAbility::Sword) => {
-                let Some(card) = self.players[player_index].bank.get(card_index) else {
-                    return false;
-                };
-
-                !self.player_bank_has_suit(self.current_player_index, card.suit)
-            }
-            Some(PendingAbility::Hook) => true,
-            _ => false,
-        }
+    pub fn next_opponent_index(&self) -> Option<usize> {
+        self.opponent_indices().into_iter().next()
     }
 }

@@ -1,5 +1,12 @@
 use super::helpers::*;
 
+use crate::games::dead_mans_draw::abilities::{
+    ability::Ability,
+    chest::ChestAbility,
+    context::AbilityContext,
+    key::KeyAbility,
+};
+
 #[test]
 fn banking_chest_without_key_gets_no_bonus() {
     let mut state = GameState::new();
@@ -113,4 +120,60 @@ fn chest_and_key_do_not_claim_bonus_when_saved_by_anchor_on_bust() {
 
     assert_eq!(state.players[0].bank.len(), 2);
     assert_eq!(state.discard.len(), 3); // Mermaid + Anchor 5 + Anchor 6
+}
+
+#[test]
+fn chest_and_key_with_empty_discard_gives_no_bonus() {
+    let mut state = GameState::new();
+
+    setup_play_area(
+        &mut state,
+        vec![
+            card(Suit::Chest, 3),
+            card(Suit::Key, 4),
+        ],
+        None,
+    );
+
+    state.discard.clear();
+
+    handle_action(&mut state, GameAction::Bank);
+
+    // Only the collected cards are banked.
+    assert_eq!(state.players[0].bank.len(), 2);
+    assert!(state.discard.is_empty());
+}
+
+#[test]
+fn key_reports_pair_when_chest_is_in_play() {
+    let mut state = GameState::new();
+
+    state.play_area.push(card(Suit::Chest, 3));
+
+    let message = KeyAbility::execute(&mut AbilityContext {
+        state: &mut state,
+        card: card(Suit::Key, 5),
+    });
+
+    assert_eq!(
+        message.unwrap(),
+        "Key pairs with Chest. Bank now to claim bonus cards from discard."
+    );
+}
+
+#[test]
+fn chest_reports_pair_when_key_is_in_play() {
+    let mut state = GameState::new();
+
+    state.play_area.push(card(Suit::Key, 3));
+
+    let message = ChestAbility::execute(&mut AbilityContext {
+        state: &mut state,
+        card: card(Suit::Chest, 5),
+    });
+
+    assert_eq!(
+        message.unwrap(),
+        "Chest pairs with Key. Bank now to claim bonus cards from discard."
+    );
 }

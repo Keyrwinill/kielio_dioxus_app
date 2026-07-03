@@ -65,6 +65,11 @@ pub fn resolve_sword(
         return;
     }
 
+    if !state.is_top_card_of_suit_stack(target_player_index, target_card_index) {
+        state.add_log("Sword can only steal the top card of a suit stack.");
+        return;
+    }
+
     let target_card = state.players[target_player_index].bank[target_card_index].clone();
 
     if state.player_bank_has_suit(state.current_player_index, target_card.suit) {

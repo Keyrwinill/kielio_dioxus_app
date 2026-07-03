@@ -32,3 +32,19 @@ fn oracle_reveals_next_card_without_drawing_it() {
     assert_eq!(state.deck.len(), 1);
     assert_eq!(state.play_area.len(), 0);
 }
+
+#[test]
+fn oracle_does_nothing_when_deck_is_empty() {
+    let mut state = GameState::new();
+
+    state.deck.clear();
+
+    OracleAbility::execute(&mut AbilityContext {
+        state: &mut state,
+        card: card(Suit::Oracle, 5),
+    });
+
+    assert!(state.revealed_next_card.is_none());
+    assert!(state.deck.is_empty());
+    assert_eq!(state.phase, GamePhase::PlayerTurn);
+}

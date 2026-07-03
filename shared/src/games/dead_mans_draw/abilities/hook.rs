@@ -44,6 +44,11 @@ pub fn resolve_hook(state: &mut GameState, target_card_index: usize) {
         return;
     }
 
+    if !state.is_top_card_of_suit_stack(current_player_index, target_card_index) {
+        state.add_log("Hook can only replay the top card of a suit stack.");
+        return;
+    }
+
     let card = state.players[current_player_index]
         .bank
         .remove(target_card_index);

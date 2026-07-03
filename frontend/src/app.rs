@@ -1,22 +1,37 @@
 use dioxus::prelude::*;
 
-//use crate::pages::home::HomePage;
-use crate::pages::dead_mans_draw::DeadMansDrawPage;
+use crate::pages::{
+    dead_mans_draw::DeadMansDrawPage,
+    home::HomePage,
+};
+
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum AppPage {
+    Home,
+    DeadMansDraw,
+}
 
 #[component]
 pub fn App() -> Element {
+    let mut page = use_signal(|| AppPage::Home);
+
     rsx! {
         document::Stylesheet {
             href: asset!("/assets/tailwind.css")
         }
-        
-        div {
-            class: "mx-auto min-h-screen max-w-6xl bg-emerald-900 p-6 font-sans text-white",
 
-            h1 { "Board Game App" }
+        match page() {
+            AppPage::Home => rsx! {
+                HomePage {
+                    on_play_dead_mans_draw: move |_| {
+                        page.set(AppPage::DeadMansDraw);
+                    },
+                }
+            },
 
-            DeadMansDrawPage {}
-            //HomePage {}
+            AppPage::DeadMansDraw => rsx! {
+                DeadMansDrawPage {}
+            },
         }
     }
 }
