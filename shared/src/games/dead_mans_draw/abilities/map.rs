@@ -123,7 +123,7 @@ pub fn auto_resolve_map_for_ai(state: &mut GameState) -> Option<String> {
         state.discard.push(card);
     }
 
-    state.play_area.push(chosen.clone());
+    add_card_to_play_area(state, chosen.clone());
 
     let mut message = format!(
         "AI Map replayed {:?} {} from discard.",

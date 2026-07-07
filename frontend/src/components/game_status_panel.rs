@@ -1,60 +1,80 @@
 use dioxus::prelude::*;
 
-use shared::games::dead_mans_draw::state::GameState;
-
-use crate::components::panel::Panel;
+use shared::games::dead_mans_draw::state::{GamePhase, GameState};
 
 #[component]
 pub fn GameStatusPanel(state: GameState) -> Element {
-    let current_player = state.current_player().name.clone();
+    let current_player = state.current_player();
+
+    let status_title = if state.game_over {
+        "🏁 Game Over"
+    } else if current_player.is_ai {
+        "🤖 AI Turn"
+    } else {
+        match state.phase {
+            GamePhase::PlayerTurn => "🟢 Your Turn",
+            GamePhase::WaitingForCannonTarget => "🎯 Choose Cannon target",
+            GamePhase::WaitingForHookTarget => "🪝 Choose Hook target",
+            GamePhase::WaitingForMapTarget => "🗺️ Choose Map card",
+            GamePhase::WaitingForSwordTarget => "⚔️ Choose Sword target",
+            GamePhase::GameOver => "🏁 Game Over",
+        }
+    };
+
+    let instruction = match state.phase {
+        GamePhase::PlayerTurn => {
+            if current_player.is_ai {
+                "Let the AI play."
+            } else {
+                "Draw a card or bank your cards."
+            }
+        }
+        GamePhase::WaitingForCannonTarget => "Choose an opponent card to discard.",
+        GamePhase::WaitingForHookTarget => "Choose one of your top bank cards to replay.",
+        GamePhase::WaitingForMapTarget => "Choose one revealed discard card to replay.",
+        GamePhase::WaitingForSwordTarget => "Choose an opponent card to steal.",
+        GamePhase::GameOver => "Start a new game.",
+    };
 
     rsx! {
-        Panel {
-            title: "Game Status".to_string(),
+        div {
+            class: "rounded-2xl bg-white/10 p-4 shadow-md",
+
+            h2 {
+                class: "text-xl font-extrabold",
+                "{status_title}"
+            }
+
+            p {
+                class: "mt-1 text-sm text-white/70",
+                "{instruction}"
+            }
 
             div {
-                class: "space-y-2",
+                class: "mt-4 grid grid-cols-2 gap-3 text-sm",
 
-                p {
-                    class: "text-lg font-semibold",
-                    "Current player: {current_player}"
+                div {
+                    class: "rounded-xl bg-black/20 p-3",
+                    div { class: "text-white/50", "Current Player" }
+                    div { class: "font-bold", "{current_player.name}" }
                 }
 
-                if state.current_player().is_ai && !state.game_over {
-                    div {
-                        class: "
-                            inline-flex items-center gap-2 rounded-full
-                            bg-purple-200 px-3 py-1
-                            text-sm font-bold text-purple-900
-                        ",
-                        span { "🤖" }
-                        span { "AI is thinking..." }
-                    }
+                div {
+                    class: "rounded-xl bg-black/20 p-3",
+                    div { class: "text-white/50", "Cards Left" }
+                    div { class: "font-bold", "{state.deck.len()}" }
                 }
 
-                p {
-                    class: "text-white/90",
-                    "{state.message}"
+                div {
+                    class: "rounded-xl bg-black/20 p-3",
+                    div { class: "text-white/50", "Cards in Play" }
+                    div { class: "font-bold", "{state.play_area.len()}" }
                 }
 
-                p {
-                    class: "text-sm text-white/70",
-                    "Phase: {state.phase:?}"
-                }
-
-                p {
-                    class: "text-sm text-white/70",
-                    "Cards left: {state.deck.len()}"
-                }
-
-                if let Some(selection) = &state.pending_selection {
-                    div {
-                        class: "
-                            mt-2 rounded-xl border-2 border-amber-400
-                            bg-amber-50 p-3 font-semibold text-slate-900
-                        ",
-                        "{selection.prompt}"
-                    }
+                div {
+                    class: "rounded-xl bg-black/20 p-3",
+                    div { class: "text-white/50", "Discard" }
+                    div { class: "font-bold", "{state.discard.len()}" }
                 }
             }
         }

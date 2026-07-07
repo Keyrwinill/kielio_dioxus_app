@@ -6,6 +6,12 @@ use crate::games::dead_mans_draw::abilities::{
     context::AbilityContext,
 };
 
+use crate::games::dead_mans_draw::{
+    engine::resolve_bust,
+    player::Player,
+    state::{GameConfig, GameState},
+};
+
 #[test]
 fn anchor_with_no_previous_cards_sets_anchor_index_to_zero() {
     let mut state = GameState::new();
@@ -210,4 +216,35 @@ fn anchor_banks_cards_before_anchor_when_later_bust_happens() {
     assert_eq!(state.discard.len(), 2);
     assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 4));
     assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 6));
+}
+
+#[test]
+fn anchor_bust_banks_protected_cards_for_current_player_in_multiplayer_game() {
+    let mut state = GameState::new_with_config(GameConfig {
+        players: vec![
+            Player::new("P1", false),
+            Player::new("P2", false),
+            Player::new("P3", true),
+        ],
+    });
+
+    state.current_player_index = 1;
+
+    state.play_area.push(card(Suit::Hook, 3));
+    state.play_area.push(card(Suit::Map, 4));
+    state.play_area.push(card(Suit::Anchor, 5));
+    state.anchor_index = Some(2);
+    state.play_area.push(card(Suit::Hook, 9));
+
+    resolve_bust(&mut state, "P2 busted.".to_string());
+
+    assert_eq!(state.players[1].bank.len(), 2);
+    assert!(state.players[1].bank.iter().any(|c| c.suit == Suit::Hook && c.value == 3));
+    assert!(state.players[1].bank.iter().any(|c| c.suit == Suit::Map && c.value == 4));
+
+    assert_eq!(state.discard.len(), 2);
+    assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 5));
+    assert!(state.discard.iter().any(|c| c.suit == Suit::Hook && c.value == 9));
+
+    assert_eq!(state.current_player_index, 2);
 }

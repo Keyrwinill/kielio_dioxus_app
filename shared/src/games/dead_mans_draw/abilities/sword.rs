@@ -14,19 +14,7 @@ pub struct SwordAbility;
 
 impl Ability for SwordAbility {
     fn execute(ctx: &mut AbilityContext) -> Option<String> {
-        let opponent_index = get_opponent_index(ctx.state);
-
-        let has_valid_target = ctx.state.players[opponent_index]
-            .bank
-            .iter()
-            .any(|card| {
-                !ctx.state.player_bank_has_suit(
-                    ctx.state.current_player_index,
-                    card.suit,
-                )
-            });
-
-        if !has_valid_target {
+        if !ctx.state.has_any_valid_sword_target() {
             return Some("Sword found no valid opponent card to steal.".to_string());
         }
 
@@ -53,9 +41,7 @@ pub fn resolve_sword(
         return;
     }
 
-    let opponent_index = get_opponent_index(state);
-
-    if target_player_index != opponent_index {
+    if target_player_index == state.current_player_index {
         state.add_log("Invalid Sword target player.");
         return;
     }
@@ -113,49 +99,48 @@ pub fn resolve_sword(
 }
 
 pub fn auto_resolve_sword_for_ai(state: &mut GameState) -> Option<String> {
-    let opponent_index = get_opponent_index(state);
+    for opponent_index in state.opponent_indices() {
+        let Some(card_index) =
+            best_valid_opponent_bank_card(state, opponent_index, |index| {
+                let card = &state.players[opponent_index].bank[index];
 
-    let Some(card_index) =
-        best_valid_opponent_bank_card(state, opponent_index, |index| {
-            let card = &state.players[opponent_index].bank[index];
+                state.is_top_card_of_suit_stack(opponent_index, index)
+                    && !state.player_bank_has_suit(
+                        state.current_player_index,
+                        card.suit,
+                    )
+            })
+        else {
+            continue;
+        };
 
-            !state.player_bank_has_suit(
-                state.current_player_index,
-                card.suit,
-            )
-        })
-    else {
-        return Some("AI drew Sword, but found no valid target.".to_string());
-    };
+        let stolen = state.players[opponent_index].bank.remove(card_index);
+        add_card_to_play_area(state, stolen.clone());
 
-    let stolen = state.players[opponent_index].bank.remove(card_index);
-    state.play_area.push(stolen.clone());
+        if has_busted(state) {
+            let message = format!(
+                "AI Sword stole {:?} {}, but busted. Protected cards were banked.",
+                stolen.suit,
+                stolen.value
+            );
 
-    if has_busted(state) {
-        let message = format!(
-            "AI Sword stole {:?} {}, but busted. Protected cards were banked.",
+            resolve_bust(state, message);
+            return None;
+        }
+
+        let mut message = format!(
+            "AI Sword stole {:?} {} into the play area.",
             stolen.suit,
             stolen.value
         );
 
-        resolve_bust(state, message);
-        return None;
+        if let Some(extra_message) = resolve_drawn_card_effect(state, &stolen) {
+            message.push(' ');
+            message.push_str(&extra_message);
+        }
+
+        return Some(message);
     }
 
-    let mut message = format!(
-        "AI Sword stole {:?} {} into the play area.",
-        stolen.suit,
-        stolen.value
-    );
-
-    if let Some(extra_message) = resolve_drawn_card_effect(state, &stolen) {
-        message.push(' ');
-        message.push_str(&extra_message);
-    }
-
-    Some(message)
-}
-
-fn get_opponent_index(state: &GameState) -> usize {
-    (state.current_player_index + 1) % state.players.len()
+    Some("AI drew Sword, but found no valid target.".to_string())
 }

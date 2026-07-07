@@ -8,24 +8,25 @@ use super::state::{PendingAbility};
 pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
     match state.pending_ability {
         Some(PendingAbility::Cannon) => {
-            let opponent_index = (state.current_player_index + 1) % state.players.len();
-
-            if let Some(card_index) = best_valid_opponent_bank_card(
-                state,
-                opponent_index,
-                |index| state.is_top_card_of_suit_stack(opponent_index, index),
-            ) {
-                handle_action(
+            for opponent_index in state.opponent_indices() {
+                if let Some(card_index) = best_valid_opponent_bank_card(
                     state,
-                    GameAction::SelectCannonTarget {
-                        target_player_index: opponent_index,
-                        target_card_index: card_index,
-                    },
-                );
-            } else {
-                skip_pending_ability(state, "AI Cannon found no valid target.");
+                    opponent_index,
+                    |index| state.is_top_card_of_suit_stack(opponent_index, index),
+                ) {
+                    handle_action(
+                        state,
+                        GameAction::SelectCannonTarget {
+                            target_player_index: opponent_index,
+                            target_card_index: card_index,
+                        },
+                    );
+
+                    return true;
+                }
             }
 
+            skip_pending_ability(state, "AI Cannon found no valid target.");
             true
         }
 
@@ -62,34 +63,35 @@ pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
         }
 
         Some(PendingAbility::Sword) => {
-            let opponent_index = (state.current_player_index + 1) % state.players.len();
-
-            if let Some(card_index) = best_valid_opponent_bank_card(
-                state,
-                opponent_index,
-                |index| {
-                    let Some(card) = state.players[opponent_index].bank.get(index) else {
-                        return false;
-                    };
-
-                    state.is_top_card_of_suit_stack(opponent_index, index)
-                        && !state.player_bank_has_suit(
-                            state.current_player_index,
-                            card.suit,
-                        )
-                },
-            ) {
-                handle_action(
+            for opponent_index in state.opponent_indices() {
+                if let Some(card_index) = best_valid_opponent_bank_card(
                     state,
-                    GameAction::SelectSwordTarget {
-                        target_player_index: opponent_index,
-                        target_card_index: card_index,
+                    opponent_index,
+                    |index| {
+                        let Some(card) = state.players[opponent_index].bank.get(index) else {
+                            return false;
+                        };
+
+                        state.is_top_card_of_suit_stack(opponent_index, index)
+                            && !state.player_bank_has_suit(
+                                state.current_player_index,
+                                card.suit,
+                            )
                     },
-                );
-            } else {
-                skip_pending_ability(state, "AI Sword found no valid target.");
+                ) {
+                    handle_action(
+                        state,
+                        GameAction::SelectSwordTarget {
+                            target_player_index: opponent_index,
+                            target_card_index: card_index,
+                        },
+                    );
+
+                    return true;
+                }
             }
 
+            skip_pending_ability(state, "AI Sword found no valid target.");
             true
         }
 

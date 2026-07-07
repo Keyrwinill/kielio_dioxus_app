@@ -2,6 +2,9 @@ mod app;
 mod components;
 mod pages;
 mod services;
+mod data;
+mod models;
+mod games;
 
 fn main() {
     dioxus::launch(app::App);

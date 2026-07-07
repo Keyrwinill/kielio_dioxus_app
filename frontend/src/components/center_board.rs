@@ -15,12 +15,9 @@ pub fn CenterBoard(
 ) -> Element {
     rsx! {
         div {
-            class: "mb-5 flex flex-col gap-5 lg:flex-row",
-            
-            // Deck section
-            div {
-                class: "lg:w-1/5",
+            class: "mb-5 grid grid-cols-1 gap-5 lg:grid-cols-[220px_1fr]",
 
+            div {
                 Panel {
                     title: "Deck".to_string(),
 
@@ -30,45 +27,46 @@ pub fn CenterBoard(
                 }
             }
 
-            // Play area section
             div {
-                class: "rounded-2xl bg-white/10 p-4 shadow-md lg:w-3/5",
+                class: "min-w-0 space-y-5",
 
                 div {
-                    class: "space-y-4",
+                    class: "rounded-2xl bg-white/10 p-4 shadow-md",
 
                     PlayAreaView {
                         cards: state.play_area.clone(),
                     }
 
-                    // Map Choices
                     if !state.map_choices.is_empty() {
-                        Panel {
-                            title: "Map Choices".to_string(),
+                        div {
+                            class: "mt-4",
 
-                            MapChoicesView {
-                                cards: state.map_choices.clone(),
-                                selectable: state.can_select_map_choices(),
-                                on_select: move |card_index| {
-                                    on_select_map_target.call(card_index);
-                                },
+                            Panel {
+                                title: "Map Choices".to_string(),
+
+                                MapChoicesView {
+                                    cards: state.map_choices.clone(),
+                                    selectable: state.can_select_map_choices(),
+                                    on_select: move |card_index| {
+                                        on_select_map_target.call(card_index);
+                                    },
+                                }
                             }
                         }
                     }
                 }
-            }
-
-            // Discard section
-            div {
-                class: "lg:w-1/5",
 
                 Panel {
-                    title: "Discard".to_string(),
+                    title: format!("Discard ({} card(s))", state.discard.len()),
 
-                    DiscardPileView {
-                        cards: state.discard.clone(),
-                        selectable: false,
-                        on_select: move |_| {},
+                    div {
+                        class: "max-w-full overflow-x-auto pb-2",
+
+                        DiscardPileView {
+                            cards: state.discard.clone(),
+                            selectable: false,
+                            on_select: move |_| {},
+                        }
                     }
                 }
             }

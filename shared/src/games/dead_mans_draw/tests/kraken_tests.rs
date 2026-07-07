@@ -1,6 +1,6 @@
 use super::helpers::*;
 
-use crate::games::dead_mans_draw::abilities::ability::Ability;
+use crate::games::dead_mans_draw::abilities::{ability::Ability, context::AbilityContext, kraken::KrakenAbility};
 
 #[test]
 fn kraken_requires_two_more_cards_before_banking() {
@@ -90,4 +90,33 @@ fn kraken_requirement_is_cleared_after_bust() {
     assert_eq!(state.kraken_required_cards, 0);
     assert!(state.play_area.is_empty());
     assert_eq!(state.discard.len(), 2);
+}
+
+#[test]
+fn kraken_only_requires_one_card_when_one_card_remains_in_deck() {
+    let mut state = GameState::new();
+
+    state.deck.clear();
+    state.deck.push(card(Suit::Hook, 5));
+
+    KrakenAbility::execute(&mut AbilityContext {
+        state: &mut state,
+        card: card(Suit::Kraken, 3),
+    });
+
+    assert_eq!(state.kraken_required_cards, 1);
+}
+
+#[test]
+fn kraken_requires_no_cards_when_deck_is_empty() {
+    let mut state = GameState::new();
+
+    state.deck.clear();
+
+    KrakenAbility::execute(&mut AbilityContext {
+        state: &mut state,
+        card: card(Suit::Kraken, 3),
+    });
+
+    assert_eq!(state.kraken_required_cards, 0);
 }

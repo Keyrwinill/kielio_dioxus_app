@@ -1,11 +1,11 @@
 use super::helpers::*;
 
-use crate::games::dead_mans_draw::abilities::{
+use crate::games::dead_mans_draw::{abilities::{
     ability::Ability,
     chest::ChestAbility,
     context::AbilityContext,
     key::KeyAbility,
-};
+}, player::Player, state::GameConfig};
 
 #[test]
 fn banking_chest_without_key_gets_no_bonus() {
@@ -176,4 +176,36 @@ fn chest_reports_pair_when_key_is_in_play() {
         message.unwrap(),
         "Chest pairs with Key. Bank now to claim bonus cards from discard."
     );
+}
+
+#[test]
+fn key_and_chest_bonus_goes_to_current_player_in_multiplayer_game() {
+    let mut state = GameState::new_with_config(GameConfig {
+        players: vec![
+            Player::new("P1", false),
+            Player::new("P2", false),
+            Player::new("P3", true),
+        ],
+    });
+
+    state.current_player_index = 1;
+
+    setup_play_area(
+        &mut state,
+        vec![
+            card(Suit::Chest, 3),
+            card(Suit::Key, 4),
+            card(Suit::Map, 5),
+        ],
+        None,
+    );
+
+    state.discard.push(card(Suit::Mermaid, 9));
+    state.discard.push(card(Suit::Oracle, 8));
+
+    handle_action(&mut state, GameAction::Bank);
+
+    assert_eq!(state.players[1].bank.len(), 5);
+    assert!(state.players[0].bank.is_empty());
+    assert!(state.players[2].bank.is_empty());
 }

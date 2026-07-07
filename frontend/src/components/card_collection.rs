@@ -22,9 +22,9 @@ pub fn CardCollection(
     };
 
     let container_class = if overlap {
-        "flex flex-wrap gap-0"
+        "flex flex-nowrap gap-0"
     } else {
-        "flex flex-wrap gap-2 sm:gap-3"
+        "flex flex-nowrap gap-2 sm:gap-3"
     };
 
     let spacing_class = if overlap {
@@ -37,54 +37,60 @@ pub fn CardCollection(
         div {
             class: "space-y-2",
 
-            h3 {
-                class: "text-lg font-bold text-white",
-                "{title}"
+            if !title.is_empty() {
+                h3 {
+                    class: "text-lg font-bold text-white",
+                    "{title}"
+                }
             }
 
             if cards.is_empty() {
                 div {
                     class: "
                         rounded-xl border border-dashed border-white/30
-                        px-4 py-6 text-center text-sm text-white/60
+                        px-4 py-2 text-center text-sm text-white/60
                     ",
                     "No cards"
                 }
             } else {
                 div {
-                    class: "flex flex-wrap gap-0",
+                    class: "w-full overflow-x-auto pb-2",
 
-                    for (index, card) in cards.into_iter().enumerate() {
-                        button {
-                            disabled: !selectable,
-                            class: if selectable {
-                                format!(
-                                    "
-                                    {} rounded-2xl border-4 {} bg-transparent p-0.5
-                                    transition-transform duration-150
-                                    hover:z-10 hover:scale-105 hover:bg-white/10
-                                    focus:z-10 focus:outline-none focus:ring-4 focus:ring-amber-300
-                                    sm:p-1
-                                    ",
-                                    spacing_class,
-                                    selectable_class
-                                )
-                            } else {
-                                format!(
-                                    "
-                                    {} border-none bg-transparent p-0.5 opacity-90
-                                    transition-transform duration-150 hover:z-10 hover:scale-105
-                                    sm:p-1
-                                    ",
-                                    spacing_class
-                                )
-                            },
-                            onclick: move |_| {
-                                if selectable {
-                                    on_select.call(index);
-                                }
-                            },
-                            CardView { card }
+                    div {
+                        class: "{container_class}",
+
+                        for (index, card) in cards.into_iter().enumerate() {
+                            button {
+                                disabled: !selectable,
+                                class: if selectable {
+                                    format!(
+                                        "
+                                        {} rounded-2xl border-4 {} bg-transparent p-0.5
+                                        transition-transform duration-150
+                                        hover:z-10 hover:scale-105 hover:bg-white/10
+                                        focus:z-10 focus:outline-none focus:ring-4 focus:ring-amber-300
+                                        sm:p-1
+                                        ",
+                                        spacing_class,
+                                        selectable_class
+                                    )
+                                } else {
+                                    format!(
+                                        "
+                                        {} border-none bg-transparent p-0.5 opacity-90
+                                        transition-transform duration-150 hover:z-10 hover:scale-105
+                                        sm:p-1
+                                        ",
+                                        spacing_class
+                                    )
+                                },
+                                onclick: move |_| {
+                                    if selectable {
+                                        on_select.call(index);
+                                    }
+                                },
+                                CardView { card }
+                            }
                         }
                     }
                 }

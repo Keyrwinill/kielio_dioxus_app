@@ -92,7 +92,7 @@ pub fn auto_resolve_hook_for_ai(state: &mut GameState) -> Option<String> {
     };
 
     let card = state.players[current_player_index].bank.remove(card_index);
-    state.play_area.push(card.clone());
+    add_card_to_play_area(state, card.clone());
 
     let mut message = format!(
         "AI Hook replayed {:?} {} from its bank.",

@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
 
+use crate::games::dead_mans_draw::deck::create_game_deck;
+
 use super::card::Card;
-use super::deck::create_deck;
 use super::player::Player;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -81,14 +82,22 @@ pub struct GameState {
 
 impl GameState {
     pub fn new() -> Self {
+        Self::new_with_config(GameConfig::default())
+    }
+
+    pub fn new_with_config(config: GameConfig) -> Self {
+        assert!(
+            config.is_valid(),
+            "Dead Man's Draw requires 2 to 4 players."
+        );
+
+        let (deck, discard) = create_game_deck();
+
         Self {
-            deck: create_deck(),
-            discard: Vec::new(),
+            deck,
+            discard,
             play_area: Vec::new(),
-            players: vec![
-                Player::new("You", false),
-                Player::new("AI", true),
-            ],
+            players: config.players,
             current_player_index: 0,
             message: "Game started. Draw a card.".to_string(),
             game_over: false,
@@ -124,6 +133,15 @@ impl GameState {
             (self.current_player_index + 1) % self.players.len();
 
         self.add_log(format!("{}'s turn.", self.current_player().name));
+    }
+
+    pub fn has_any_opponent_bank_cards(&self) -> bool {
+        self.players
+            .iter()
+            .enumerate()
+            .any(|(index, player)| {
+                index != self.current_player_index && !player.bank.is_empty()
+            })
     }
 
     pub fn add_log(&mut self, message: impl Into<String>) {
@@ -235,5 +253,43 @@ impl GameState {
 
     pub fn next_opponent_index(&self) -> Option<usize> {
         self.opponent_indices().into_iter().next()
+    }
+
+    pub fn has_any_valid_sword_target(&self) -> bool {
+        self.players
+            .iter()
+            .enumerate()
+            .any(|(player_index, player)| {
+                player_index != self.current_player_index
+                    && player.bank.iter().enumerate().any(|(card_index, card)| {
+                        self.is_top_card_of_suit_stack(player_index, card_index)
+                            && !self.player_bank_has_suit(
+                                self.current_player_index,
+                                card.suit,
+                            )
+                    })
+            })
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GameConfig {
+    pub players: Vec<Player>,
+}
+
+impl GameConfig {
+    pub fn is_valid(&self) -> bool {
+        (2..=4).contains(&self.players.len())
+    }
+}
+
+impl Default for GameConfig {
+    fn default() -> Self {
+        Self {
+            players: vec![
+                Player::new("You", false),
+                Player::new("AI", true),
+            ],
+        }
     }
 }

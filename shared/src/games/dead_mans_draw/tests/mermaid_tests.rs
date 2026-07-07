@@ -40,3 +40,17 @@ fn mermaid_scores_highest_mermaid_only() {
 
     assert_eq!(score, 9);
 }
+
+#[test]
+fn mermaid_duplicate_still_busts() {
+    let mut state = GameState::new();
+
+    state.play_area.push(card(Suit::Mermaid, 4));
+    state.deck.clear();
+    state.deck.push(card(Suit::Mermaid, 9));
+
+    handle_action(&mut state, GameAction::Draw);
+
+    assert!(state.play_area.is_empty());
+    assert_eq!(state.discard.len(), 2);
+}

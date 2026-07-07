@@ -68,11 +68,17 @@ pub fn draw_card_internal(state: &mut GameState, mode: DrawMode) {
     }
 
     state.add_log(message);
-    /*
-    if state.deck.is_empty() {
+
+    //To be checked
+    if state.deck.is_empty() && state.kraken_required_cards > 0 {
+        state.add_log(
+            "Deck ended before Kraken could be completed.".to_string()
+        );
+
+        state.kraken_required_cards = 0;
         end_game(state);
+        return;
     }
-    */
 }
 
 pub fn handle_action(state: &mut GameState, action: GameAction) {
@@ -87,6 +93,10 @@ pub fn handle_action(state: &mut GameState, action: GameAction) {
 
         GameAction::NewGame => {
             *state = GameState::new();
+        }
+
+        GameAction::StartNewGame { config } => {
+            *state = GameState::new_with_config(config);
         }
 
         GameAction::SelectCannonTarget {

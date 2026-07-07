@@ -2,6 +2,12 @@ use super::helpers::*;
 
 use crate::games::dead_mans_draw::state::PendingAbility;
 
+use crate::games::dead_mans_draw::{
+    abilities::cannon::resolve_cannon,
+    player::Player,
+    state::{GameConfig, GameState},
+};
+
 #[test]
 fn cannon_removes_selected_opponent_card() {
     let mut state = GameState::new();
@@ -100,4 +106,34 @@ fn cannon_cannot_target_non_top_card_even_if_called_directly() {
     );
 
     assert_eq!(state.players[1].bank.len(), 2);
+}
+
+#[test]
+fn cannon_can_destroy_top_card_from_any_opponent_in_multiplayer_game() {
+    let mut state = GameState::new_with_config(GameConfig {
+        players: vec![
+            Player::new("P1", false),
+            Player::new("P2", false),
+            Player::new("P3", true),
+        ],
+    });
+
+    state.current_player_index = 0;
+    state.phase = GamePhase::WaitingForCannonTarget;
+    state.pending_ability = Some(PendingAbility::Cannon);
+
+    state.players[2].bank.push(card(Suit::Sword, 4));
+    state.players[2].bank.push(card(Suit::Sword, 9));
+
+    resolve_cannon(&mut state, 2, 1);
+
+    assert_eq!(state.players[2].bank.len(), 1);
+    assert_eq!(state.players[2].bank[0].value, 4);
+
+    assert_eq!(state.discard.len(), 1);
+    assert_eq!(state.discard[0].suit, Suit::Sword);
+    assert_eq!(state.discard[0].value, 9);
+
+    assert_eq!(state.phase, GamePhase::PlayerTurn);
+    assert!(state.pending_ability.is_none());
 }

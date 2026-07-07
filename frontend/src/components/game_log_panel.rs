@@ -1,23 +1,30 @@
 use dioxus::prelude::*;
 
-use crate::components::panel::Panel;
-
 #[component]
 pub fn GameLogPanel(game_log: Vec<String>) -> Element {
     rsx! {
-        Panel {
-            title: "Game Log".to_string(),
+        div {
+            class: "rounded-2xl bg-white/10 p-4 shadow-md",
+
+            h2 {
+                class: "mb-3 text-xl font-extrabold",
+                "Game Log"
+            }
 
             div {
-                class: "
-                    max-h-44 overflow-y-auto rounded-xl
-                    bg-black/20 p-3
-                ",
+                class: "max-h-48 space-y-2 overflow-y-auto pr-1",
 
-                for item in game_log.iter().rev().take(10) {
+                if game_log.is_empty() {
                     p {
-                        class: "border-b border-white/10 py-1 text-sm text-white/90 last:border-b-0",
-                        "{item}"
+                        class: "text-sm text-white/50",
+                        "No events yet."
+                    }
+                } else {
+                    for entry in game_log.iter().rev().take(8) {
+                        div {
+                            class: "rounded-xl bg-black/20 px-3 py-2 text-sm text-white/80",
+                            "{entry}"
+                        }
                     }
                 }
             }

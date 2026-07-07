@@ -11,22 +11,14 @@ pub fn DiscardPileView(
 ) -> Element {
     rsx! {
         div {
-            class: "space-y-3",
-
-            div {
-                class: "
-                    rounded-xl border border-dashed border-white/30
-                    bg-black/20 p-3 text-center text-sm text-white/70
-                ",
-                "Discard pile: {cards.len()} card(s)"
-            }
+            class: "max-w-full overflow-x-auto pb-2",
 
             CardCollection {
-                title: "Cards".to_string(),
+                title: "".to_string(),
                 cards,
                 selectable,
                 border_color: "green".to_string(),
-                overlap: true,
+                overlap: false,
                 on_select,
             }
         }

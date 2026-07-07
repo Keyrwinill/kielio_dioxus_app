@@ -11,3 +11,8 @@ pub mod center_board;
 pub mod game_status_panel;
 pub mod game_log_panel;
 pub mod scoreboard_panel;
+pub mod game_card;
+pub mod app_header;
+pub mod app_footer;
+pub mod app_layout;
+pub mod game_launcher;

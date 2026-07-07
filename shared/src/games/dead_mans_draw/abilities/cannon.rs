@@ -10,10 +10,8 @@ pub struct CannonAbility;
 
 impl Ability for CannonAbility {
     fn execute(ctx: &mut AbilityContext) -> Option<String> {
-        let opponent_index = get_opponent_index(ctx.state);
-
-        if ctx.state.players[opponent_index].bank.is_empty() {
-            return Some("Cannon fired, but opponent has no banked cards.".to_string());
+        if !ctx.state.has_any_opponent_bank_cards() {
+            return Some("Cannon found no opponent card to discard.".to_string());
         }
 
         ctx.state.phase = GamePhase::WaitingForCannonTarget;
@@ -39,9 +37,7 @@ pub fn resolve_cannon(
         return;
     }
 
-    let opponent_index = get_opponent_index(state);
-
-    if target_player_index != opponent_index {
+    if target_player_index == state.current_player_index {
         state.add_log("Invalid target player.".to_string());
         return;
     }
@@ -74,27 +70,23 @@ pub fn resolve_cannon(
     state.pending_selection = None;
 }
 
-fn get_opponent_index(state: &GameState) -> usize {
-    (state.current_player_index + 1) % state.players.len()
-}
-
 pub fn auto_resolve_cannon_for_ai(state: &mut GameState) -> Option<String> {
-    let opponent_index = get_opponent_index(state);
+    for opponent_index in state.opponent_indices() {
+        if let Some(card_index) = best_valid_opponent_bank_card(
+            state,
+            opponent_index,
+            |index| state.is_top_card_of_suit_stack(opponent_index, index),
+        ) {
+            let removed = state.players[opponent_index].bank.remove(card_index);
+            state.discard.push(removed.clone());
 
-    let Some(card_index) =
-        best_valid_opponent_bank_card(state, opponent_index, |index| {
-            state.is_top_card_of_suit_stack(opponent_index, index)
-        })
-    else {
-        return Some("Cannon fired, but opponent has no valid banked cards.".to_string());
-    };
+            return Some(format!(
+                "AI Cannon destroyed {:?} {}.",
+                removed.suit,
+                removed.value
+            ));
+        }
+    }
 
-    let removed = state.players[opponent_index].bank.remove(card_index);
-    state.discard.push(removed.clone());
-
-    Some(format!(
-        "AI Cannon destroyed {:?} {}.",
-        removed.suit,
-        removed.value
-    ))
+    Some("AI Cannon found no valid target.".to_string())
 }
