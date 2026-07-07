@@ -7,6 +7,7 @@ pub mod player;
 pub mod scoring;
 pub mod state;
 pub mod rules;
+pub mod variant;
 
 #[cfg(test)]
 mod tests;

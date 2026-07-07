@@ -1,8 +1,9 @@
+use crate::games::dead_mans_draw::engine::{ReplayResult, append_extra_message, finish_pending_selection, replay_card_to_play_area, resolve_bust};
+
 use super::ability::Ability;
 use super::context::AbilityContext;
 use super::super::ai::best_safe_own_bank_card;
-use super::super::engine::{add_card_to_play_area, resolve_bust, resolve_drawn_card_effect};
-use super::super::rules::has_busted;
+use super::super::engine::{add_card_to_play_area, resolve_drawn_card_effect};
 use super::super::state::{
     GamePhase, GameState, PendingAbility, PendingSelection,
     SelectionOwner, SelectionSource,
@@ -53,35 +54,32 @@ pub fn resolve_hook(state: &mut GameState, target_card_index: usize) {
         .bank
         .remove(target_card_index);
 
-    add_card_to_play_area(state, card.clone());
+    finish_pending_selection(state);
+    
+    match replay_card_to_play_area(state, card.clone()) {
+        ReplayResult::Busted => {
+            let message = format!(
+                "Hook replayed {:?} {}, but you busted. Protected cards were banked!",
+                card.suit,
+                card.value
+            );
 
-    state.phase = GamePhase::PlayerTurn;
-    state.pending_ability = None;
-    state.pending_selection = None;
+            resolve_bust(state, message);
+            return;
+        }
 
-    if has_busted(state) {
-        let message = format!(
-            "Hook replayed {:?} {}, but you busted. Protected cards were banked!",
-            card.suit,
-            card.value
-        );
+        ReplayResult::Continued { extra_message } => {
+            let mut message = format!(
+                "Hook replayed {:?} {} from your bank.",
+                card.suit,
+                card.value
+            );
 
-        resolve_bust(state, message);
-        return;
+            append_extra_message(&mut message, extra_message);
+
+            state.add_log(message);
+        }
     }
-
-    let mut message = format!(
-        "Hook replayed {:?} {} from your bank.",
-        card.suit,
-        card.value
-    );
-
-    if let Some(extra_message) = resolve_drawn_card_effect(state, &card) {
-        message.push(' ');
-        message.push_str(&extra_message);
-    }
-
-    state.add_log(message);
 }
 
 pub fn auto_resolve_hook_for_ai(state: &mut GameState) -> Option<String> {

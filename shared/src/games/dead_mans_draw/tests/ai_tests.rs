@@ -4,7 +4,7 @@ use crate::games::dead_mans_draw::state::PendingAbility;
 
 #[test]
 fn ai_banks_when_bust_risk_is_high() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -34,7 +34,7 @@ fn ai_banks_when_bust_risk_is_high() {
 
 #[test]
 fn ai_hook_selects_only_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -56,7 +56,7 @@ fn ai_hook_selects_only_top_card_of_suit_stack() {
 
 #[test]
 fn ai_cannon_targets_only_top_card_of_opponent_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -81,7 +81,7 @@ fn ai_cannon_targets_only_top_card_of_opponent_suit_stack() {
 
 #[test]
 fn ai_sword_does_not_steal_suit_it_already_has() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     // AI is player 1
     state.current_player_index = 1;
@@ -107,7 +107,7 @@ fn ai_sword_does_not_steal_suit_it_already_has() {
 
 #[test]
 fn ai_map_chooses_safe_revealed_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 

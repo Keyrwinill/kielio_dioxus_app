@@ -9,12 +9,12 @@ use crate::games::dead_mans_draw::abilities::{
 use crate::games::dead_mans_draw::{
     engine::resolve_bust,
     player::Player,
-    state::{GameConfig, GameState},
+    state::{GameState},
 };
 
 #[test]
 fn anchor_with_no_previous_cards_sets_anchor_index_to_zero() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(Card {
         suit: Suit::Anchor,
@@ -33,7 +33,7 @@ fn anchor_with_no_previous_cards_sets_anchor_index_to_zero() {
 
 #[test]
 fn anchor_protected_cards_are_banked_when_later_card_busts() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(Card {
         suit: Suit::Key,
@@ -83,7 +83,7 @@ fn anchor_protected_cards_are_banked_when_later_card_busts() {
 
 #[test]
 fn banking_with_anchor_banks_everything() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -105,7 +105,7 @@ fn banking_with_anchor_banks_everything() {
 
 #[test]
 fn bust_with_anchor_as_first_card_banks_nothing() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -127,7 +127,7 @@ fn bust_with_anchor_as_first_card_banks_nothing() {
 
 #[test]
 fn bust_with_anchor_as_last_card_banks_previous_cards() {
-let mut state = GameState::new();
+let mut state = GameState::empty();
 
 setup_play_area(
     &mut state,
@@ -152,7 +152,7 @@ assert_eq!(state.discard[0].suit, Suit::Anchor);
 
 #[test]
 fn bust_without_anchor_discards_everything() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -174,7 +174,7 @@ fn bust_without_anchor_discards_everything() {
 
 #[test]
 fn anchor_banks_cards_before_anchor_when_later_bust_happens() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(Card {
         suit: Suit::Oracle,
@@ -220,16 +220,16 @@ fn anchor_banks_cards_before_anchor_when_later_bust_happens() {
 
 #[test]
 fn anchor_bust_banks_protected_cards_for_current_player_in_multiplayer_game() {
-    let mut state = GameState::new_with_config(GameConfig {
-        players: vec![
-            Player::new("P1", false),
-            Player::new("P2", false),
-            Player::new("P3", true),
-        ],
-    });
+    let mut state = GameState::empty();
+    state.players = vec![
+        Player::new("P1", false),
+        Player::new("P2", false),
+        Player::new("P3", true),
+    ];
 
     state.current_player_index = 1;
 
+    state.deck.push(card(Suit::Oracle, 2));
     state.play_area.push(card(Suit::Hook, 3));
     state.play_area.push(card(Suit::Map, 4));
     state.play_area.push(card(Suit::Anchor, 5));

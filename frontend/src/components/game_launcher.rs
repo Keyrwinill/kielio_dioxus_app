@@ -1,7 +1,6 @@
 use dioxus::prelude::*;
 
 use crate::{
-    app::Route,
     models::game_manifest::{GameRoute, GameStatus},
 };
 

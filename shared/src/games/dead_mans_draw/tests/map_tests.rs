@@ -8,7 +8,7 @@ use crate::games::dead_mans_draw::abilities::{
 
 #[test]
 fn map_moves_selected_map_choice_to_play_area() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.map_choices = vec![
         Card {
@@ -39,7 +39,7 @@ fn map_moves_selected_map_choice_to_play_area() {
 
 #[test]
 fn map_replay_satisfies_kraken_requirement() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.kraken_required_cards = 1;
 
@@ -63,7 +63,7 @@ fn map_replay_satisfies_kraken_requirement() {
 
 #[test]
 fn ai_map_replays_safe_highest_revealed_discard_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -99,7 +99,7 @@ fn ai_map_replays_safe_highest_revealed_discard_card() {
 
 #[test]
 fn map_returns_unselected_cards_to_discard_without_losing_cards() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.discard.push(card(Suit::Anchor, 1));
     state.discard.push(card(Suit::Cannon, 2));

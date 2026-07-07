@@ -8,7 +8,7 @@ use crate::games::dead_mans_draw::{
 
 #[test]
 fn drawing_last_card_does_not_end_game_before_banking() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.deck.clear();
     state.deck.push(card(Suit::Mermaid, 9));
@@ -27,7 +27,7 @@ fn drawing_last_card_does_not_end_game_before_banking() {
 
 #[test]
 fn drawing_last_card_that_busts_ends_game_after_bust_resolution() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -51,7 +51,7 @@ fn drawing_last_card_that_busts_ends_game_after_bust_resolution() {
 
 #[test]
 fn drawing_last_map_card_waits_for_map_selection_before_game_over() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.discard.push(card(Suit::Oracle, 5));
 
@@ -67,7 +67,7 @@ fn drawing_last_map_card_waits_for_map_selection_before_game_over() {
 
 #[test]
 fn drawing_last_hook_card_waits_for_hook_selection_before_game_over() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(card(Suit::Oracle, 5));
 
@@ -83,7 +83,7 @@ fn drawing_last_hook_card_waits_for_hook_selection_before_game_over() {
 
 #[test]
 fn drawing_last_cannon_card_waits_for_cannon_selection_before_game_over() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(card(Suit::Mermaid, 9));
 
@@ -99,7 +99,7 @@ fn drawing_last_cannon_card_waits_for_cannon_selection_before_game_over() {
 
 #[test]
 fn drawing_last_sword_card_waits_for_sword_selection_before_game_over() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(card(Suit::Mermaid, 9));
 
@@ -115,7 +115,7 @@ fn drawing_last_sword_card_waits_for_sword_selection_before_game_over() {
 
 #[test]
 fn new_game_uses_default_two_players() {
-    let state = GameState::new();
+    let state = GameState::empty();
 
     assert_eq!(state.players.len(), 2);
     assert_eq!(state.players[0].name, "You");
@@ -184,7 +184,7 @@ fn next_player_rotates_through_three_players() {
 
 #[test]
 fn start_new_game_action_uses_configured_players() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     handle_action(
         &mut state,

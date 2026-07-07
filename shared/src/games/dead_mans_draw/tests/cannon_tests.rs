@@ -5,12 +5,12 @@ use crate::games::dead_mans_draw::state::PendingAbility;
 use crate::games::dead_mans_draw::{
     abilities::cannon::resolve_cannon,
     player::Player,
-    state::{GameConfig, GameState},
+    state::{GameState},
 };
 
 #[test]
 fn cannon_removes_selected_opponent_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(Card {
         suit: Suit::Mermaid,
@@ -34,7 +34,7 @@ fn cannon_removes_selected_opponent_card() {
 
 #[test]
 fn cannon_cannot_remove_non_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(Card {
         suit: Suit::Anchor,
@@ -63,7 +63,7 @@ fn cannon_cannot_remove_non_top_card_of_suit_stack() {
 
 #[test]
 fn ai_cannon_targets_only_top_suit_stack_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -89,7 +89,7 @@ fn ai_cannon_targets_only_top_suit_stack_card() {
 
 #[test]
 fn cannon_cannot_target_non_top_card_even_if_called_directly() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(card(Suit::Sword, 3));
     state.players[1].bank.push(card(Suit::Sword, 8));
@@ -110,13 +110,12 @@ fn cannon_cannot_target_non_top_card_even_if_called_directly() {
 
 #[test]
 fn cannon_can_destroy_top_card_from_any_opponent_in_multiplayer_game() {
-    let mut state = GameState::new_with_config(GameConfig {
-        players: vec![
-            Player::new("P1", false),
-            Player::new("P2", false),
-            Player::new("P3", true),
-        ],
-    });
+    let mut state = GameState::empty();
+    state.players = vec![
+        Player::new("P1", false),
+        Player::new("P2", false),
+        Player::new("P3", true),
+    ];
 
     state.current_player_index = 0;
     state.phase = GamePhase::WaitingForCannonTarget;

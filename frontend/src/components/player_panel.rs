@@ -20,6 +20,20 @@ pub fn PlayerPanel(
     let can_select_from_this_player = state.can_select_player_bank(player_index);
     let phase = state.phase.clone();
 
+    let mut display_bank: Vec<(usize, _)> = player
+        .bank
+        .iter()
+        .cloned()
+        .enumerate()
+        .collect();
+
+    display_bank.sort_by_key(|(_, card)| {
+        (
+            card.suit.sort_order(),
+            std::cmp::Reverse(card.value),
+        )
+    });
+
     rsx! {
         div {
             class: "mt-3 rounded-2xl border border-white/20 bg-white/10 p-4",
@@ -80,7 +94,7 @@ pub fn PlayerPanel(
                 div {
                     class: "flex flex-nowrap gap-0",
 
-                    for (card_index, card) in player.bank.into_iter().enumerate() {
+                    for (card_index, card) in display_bank {
                         {
                             let phase_for_click = phase.clone();
                             let can_select_card =

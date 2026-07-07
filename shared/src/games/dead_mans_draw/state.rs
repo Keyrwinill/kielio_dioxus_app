@@ -85,6 +85,27 @@ impl GameState {
         Self::new_with_config(GameConfig::default())
     }
 
+    pub fn empty() -> Self {
+        Self {
+            deck: Vec::new(),
+            discard: Vec::new(),
+            play_area: Vec::new(),
+            players: GameConfig::default().players,
+            current_player_index: 0,
+            message: "Game started. Draw a card.".to_string(),
+            game_over: false,
+            revealed_next_card: None,
+            phase: GamePhase::PlayerTurn,
+            pending_ability: None,
+            map_choices: Vec::new(),
+            treasure_cards: Vec::new(),
+            game_log: vec!["Game started.".to_string()],
+            pending_selection: None,
+            kraken_required_cards: 0,
+            anchor_index: None,
+        }
+    }
+
     pub fn new_with_config(config: GameConfig) -> Self {
         assert!(
             config.is_valid(),

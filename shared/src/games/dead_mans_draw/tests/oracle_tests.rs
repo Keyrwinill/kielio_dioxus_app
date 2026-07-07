@@ -12,7 +12,7 @@ use crate::{
 
 #[test]
 fn oracle_reveals_next_card_without_drawing_it() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.deck.clear();
 
@@ -35,7 +35,7 @@ fn oracle_reveals_next_card_without_drawing_it() {
 
 #[test]
 fn oracle_does_nothing_when_deck_is_empty() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.deck.clear();
 
@@ -51,7 +51,7 @@ fn oracle_does_nothing_when_deck_is_empty() {
 
 #[test]
 fn drawing_after_oracle_draws_the_revealed_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.deck.clear();
 

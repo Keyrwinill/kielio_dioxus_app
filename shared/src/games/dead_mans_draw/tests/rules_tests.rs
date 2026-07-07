@@ -2,7 +2,7 @@ use super::helpers::*;
 
 #[test]
 fn can_select_bank_card_respects_cannon_and_sword_rules() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Anchor,
@@ -39,7 +39,7 @@ fn can_select_bank_card_respects_cannon_and_sword_rules() {
 
 #[test]
 fn scoring_uses_highest_card_per_suit() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Anchor,
@@ -64,7 +64,7 @@ fn scoring_uses_highest_card_per_suit() {
 
 #[test]
 fn winner_is_player_with_highest_score_when_game_over() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Anchor,
@@ -86,7 +86,7 @@ fn winner_is_player_with_highest_score_when_game_over() {
 
 #[test]
 fn duplicate_suit_in_play_area_causes_bust() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(Card {
         suit: Suit::Anchor,
@@ -117,7 +117,7 @@ fn duplicate_suit_in_play_area_causes_bust() {
 
 #[test]
 fn bust_card_does_not_enter_play_area_or_activate_ability() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(Card {
         suit: Suit::Cannon,

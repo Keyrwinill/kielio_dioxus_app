@@ -1,6 +1,6 @@
 use crate::dto::GameAction;
 use super::card::Suit;
-use super::rules::would_bust;
+use super::rules::{has_busted, would_bust};
 use super::state::{GamePhase, GameState};
 use super::abilities::{
     registry::execute_card_ability,
@@ -14,6 +14,14 @@ use super::abilities::{
 pub enum DrawMode {
     Normal,
     ForcedNoAbility,
+}
+
+#[derive(Debug, Clone)]
+pub enum ReplayResult {
+    Busted,
+    Continued {
+        extra_message: Option<String>,
+    },
 }
 
 pub fn draw_card(state: &mut GameState) {
@@ -230,6 +238,23 @@ pub fn resolve_drawn_card_effect(
     execute_card_ability(state, card)
 }
 
+pub fn replay_card_to_play_area(
+    state: &mut GameState,
+    card: crate::games::dead_mans_draw::card::Card,
+) -> ReplayResult {
+    add_card_to_play_area(state, card.clone());
+
+    if has_busted(state) {
+        return ReplayResult::Busted;
+    }
+
+    let extra_message = resolve_drawn_card_effect(state, &card);
+
+    ReplayResult::Continued {
+        extra_message,
+    }
+}
+
 pub fn add_card_to_play_area(
     state: &mut GameState,
     card: crate::games::dead_mans_draw::card::Card,
@@ -239,4 +264,17 @@ pub fn add_card_to_play_area(
     if state.kraken_required_cards > 0 {
         state.kraken_required_cards -= 1;
     }
+}
+
+pub fn append_extra_message(message: &mut String, extra_message: Option<String>) {
+    if let Some(extra_message) = extra_message {
+        message.push(' ');
+        message.push_str(&extra_message);
+    }
+}
+
+pub fn finish_pending_selection(state: &mut GameState) {
+    state.phase = GamePhase::PlayerTurn;
+    state.pending_ability = None;
+    state.pending_selection = None;
 }

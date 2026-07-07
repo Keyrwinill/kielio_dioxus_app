@@ -1,4 +1,4 @@
-use crate::games::dead_mans_draw::engine::add_card_to_play_area;
+use crate::games::dead_mans_draw::engine::{ReplayResult, add_card_to_play_area, append_extra_message, finish_pending_selection, replay_card_to_play_area};
 
 use super::ability::Ability;
 use super::context::AbilityContext;
@@ -67,35 +67,32 @@ pub fn resolve_sword(
         .bank
         .remove(target_card_index);
 
-    add_card_to_play_area(state, stolen.clone());
+    finish_pending_selection(state);
 
-    state.phase = GamePhase::PlayerTurn;
-    state.pending_ability = None;
-    state.pending_selection = None;
+    match replay_card_to_play_area(state, stolen.clone()) {
+        ReplayResult::Busted => {
+            let message = format!(
+                "Sword stole {:?} {}, but you busted. Protected cards were banked.",
+                stolen.suit,
+                stolen.value
+            );
 
-    if has_busted(state) {
-        let message = format!(
-            "Sword stole {:?} {}, but you busted. Protected cards were banked.",
-            stolen.suit,
-            stolen.value
-        );
+            resolve_bust(state, message);
+            return;
+        }
 
-        resolve_bust(state, message);
-        return;
+        ReplayResult::Continued { extra_message } => {
+            let mut message = format!(
+                "Sword stole {:?} {} into the play area.",
+                stolen.suit,
+                stolen.value
+            );
+
+            append_extra_message(&mut message, extra_message);
+
+            state.add_log(message);
+        }
     }
-
-    let mut message = format!(
-        "Sword stole {:?} {} into the play area.",
-        stolen.suit,
-        stolen.value
-    );
-
-    if let Some(extra_message) = resolve_drawn_card_effect(state, &stolen) {
-        message.push(' ');
-        message.push_str(&extra_message);
-    }
-
-    state.add_log(message);
 }
 
 pub fn auto_resolve_sword_for_ai(state: &mut GameState) -> Option<String> {

@@ -2,7 +2,7 @@ use super::helpers::*;
 
 #[test]
 fn mermaid_has_no_activated_ability() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.deck.clear();
 
@@ -23,7 +23,7 @@ fn mermaid_has_no_activated_ability() {
 
 #[test]
 fn mermaid_scores_highest_mermaid_only() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Mermaid,
@@ -43,7 +43,7 @@ fn mermaid_scores_highest_mermaid_only() {
 
 #[test]
 fn mermaid_duplicate_still_busts() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(card(Suit::Mermaid, 4));
     state.deck.clear();

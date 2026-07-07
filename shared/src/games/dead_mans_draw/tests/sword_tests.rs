@@ -9,7 +9,7 @@ use crate::games::dead_mans_draw::abilities::{
 
 #[test]
 fn sword_steals_selected_opponent_card_to_play_area() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(Card {
         suit: Suit::Anchor,
@@ -35,7 +35,7 @@ fn sword_steals_selected_opponent_card_to_play_area() {
 
 #[test]
 fn sword_cannot_steal_suit_already_in_own_bank() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Anchor,
@@ -64,7 +64,7 @@ fn sword_cannot_steal_suit_already_in_own_bank() {
 
 #[test]
 fn ai_sword_steals_valid_card_to_play_area() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -84,7 +84,7 @@ fn ai_sword_steals_valid_card_to_play_area() {
 
 #[test]
 fn sword_cannot_steal_non_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(card(Suit::Cannon, 3));
     state.players[1].bank.push(card(Suit::Cannon, 8));
@@ -106,7 +106,7 @@ fn sword_cannot_steal_non_top_card_of_suit_stack() {
 
 #[test]
 fn sword_can_steal_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[1].bank.push(card(Suit::Cannon, 3));
     state.players[1].bank.push(card(Suit::Cannon, 8));
@@ -130,7 +130,7 @@ fn sword_can_steal_top_card_of_suit_stack() {
 
 #[test]
 fn sword_does_not_enter_target_state_when_no_valid_target_exists() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(card(Suit::Cannon, 3));
     state.players[1].bank.push(card(Suit::Cannon, 8));

@@ -4,7 +4,7 @@ use crate::games::dead_mans_draw::state::PendingAbility;
 
 #[test]
 fn map_replaying_cannon_opens_cannon_target_selection() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.map_choices.push(Card {
         suit: Suit::Cannon,
@@ -36,7 +36,7 @@ fn map_replaying_cannon_opens_cannon_target_selection() {
 
 #[test]
 fn hook_replaying_cannon_opens_cannon_target_selection() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Cannon,
@@ -68,7 +68,7 @@ fn hook_replaying_cannon_opens_cannon_target_selection() {
 
 #[test]
 fn hook_replays_cannon_then_cannon_discards_opponent_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(card(Suit::Cannon, 5));
     state.players[1].bank.push(card(Suit::Mermaid, 9));
@@ -101,7 +101,7 @@ fn hook_replays_cannon_then_cannon_discards_opponent_card() {
 
 #[test]
 fn map_replays_cannon_then_cannon_discards_opponent_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.map_choices.push(card(Suit::Cannon, 5));
     state.players[1].bank.push(card(Suit::Mermaid, 9));
@@ -134,7 +134,7 @@ fn map_replays_cannon_then_cannon_discards_opponent_card() {
 
 #[test]
 fn hook_replays_anchor_and_sets_anchor_index() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -164,7 +164,7 @@ fn hook_replays_anchor_and_sets_anchor_index() {
 
 #[test]
 fn map_replays_anchor_and_sets_anchor_index() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,

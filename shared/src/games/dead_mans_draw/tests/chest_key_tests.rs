@@ -5,11 +5,11 @@ use crate::games::dead_mans_draw::{abilities::{
     chest::ChestAbility,
     context::AbilityContext,
     key::KeyAbility,
-}, player::Player, state::GameConfig};
+}, player::Player};
 
 #[test]
 fn banking_chest_without_key_gets_no_bonus() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -30,7 +30,7 @@ fn banking_chest_without_key_gets_no_bonus() {
 
 #[test]
 fn banking_key_without_chest_gets_no_bonus() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -51,7 +51,7 @@ fn banking_key_without_chest_gets_no_bonus() {
 
 #[test]
 fn banking_chest_and_key_claims_bonus_from_discard() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -76,7 +76,7 @@ fn banking_chest_and_key_claims_bonus_from_discard() {
 
 #[test]
 fn chest_and_key_claims_only_available_discard_cards() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -99,7 +99,7 @@ fn chest_and_key_claims_only_available_discard_cards() {
 
 #[test]
 fn chest_and_key_do_not_claim_bonus_when_saved_by_anchor_on_bust() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -124,7 +124,7 @@ fn chest_and_key_do_not_claim_bonus_when_saved_by_anchor_on_bust() {
 
 #[test]
 fn chest_and_key_with_empty_discard_gives_no_bonus() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     setup_play_area(
         &mut state,
@@ -146,7 +146,7 @@ fn chest_and_key_with_empty_discard_gives_no_bonus() {
 
 #[test]
 fn key_reports_pair_when_chest_is_in_play() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(card(Suit::Chest, 3));
 
@@ -163,7 +163,7 @@ fn key_reports_pair_when_chest_is_in_play() {
 
 #[test]
 fn chest_reports_pair_when_key_is_in_play() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.play_area.push(card(Suit::Key, 3));
 
@@ -180,13 +180,12 @@ fn chest_reports_pair_when_key_is_in_play() {
 
 #[test]
 fn key_and_chest_bonus_goes_to_current_player_in_multiplayer_game() {
-    let mut state = GameState::new_with_config(GameConfig {
-        players: vec![
-            Player::new("P1", false),
-            Player::new("P2", false),
-            Player::new("P3", true),
-        ],
-    });
+    let mut state = GameState::empty();
+    state.players = vec![
+        Player::new("P1", false),
+        Player::new("P2", false),
+        Player::new("P3", true),
+    ];
 
     state.current_player_index = 1;
 

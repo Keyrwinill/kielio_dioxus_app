@@ -13,3 +13,4 @@ mod engine_tests;
 mod rules_tests;
 mod interaction_tests;
 mod ai_tests;
+mod setup_tests;

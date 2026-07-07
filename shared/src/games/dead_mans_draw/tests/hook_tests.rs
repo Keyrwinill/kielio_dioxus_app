@@ -4,7 +4,7 @@ use crate::games::dead_mans_draw::state::PendingAbility;
 
 #[test]
 fn hook_moves_selected_banked_card_to_play_area() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(Card {
         suit: Suit::Mermaid,
@@ -28,7 +28,7 @@ fn hook_moves_selected_banked_card_to_play_area() {
 
 #[test]
 fn hook_replay_satisfies_kraken_requirement() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.kraken_required_cards = 1;
 
@@ -52,7 +52,7 @@ fn hook_replay_satisfies_kraken_requirement() {
 
 #[test]
 fn ai_hook_replays_safe_highest_banked_card() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.current_player_index = 1;
 
@@ -82,7 +82,7 @@ fn ai_hook_replays_safe_highest_banked_card() {
 
 #[test]
 fn hook_cannot_replay_non_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(card(Suit::Cannon, 3));
     state.players[0].bank.push(card(Suit::Cannon, 8));
@@ -103,7 +103,7 @@ fn hook_cannot_replay_non_top_card_of_suit_stack() {
 
 #[test]
 fn hook_can_replay_top_card_of_suit_stack() {
-    let mut state = GameState::new();
+    let mut state = GameState::empty();
 
     state.players[0].bank.push(card(Suit::Cannon, 3));
     state.players[0].bank.push(card(Suit::Cannon, 8));
