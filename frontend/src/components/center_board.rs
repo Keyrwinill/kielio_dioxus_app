@@ -1,6 +1,5 @@
 use dioxus::prelude::*;
 
-use shared::dto::GameAction;
 use shared::games::dead_mans_draw::state::GameState;
 
 use crate::components::deck_view::DeckView;
