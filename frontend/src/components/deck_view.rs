@@ -1,7 +1,8 @@
 use dioxus::prelude::*;
+use shared::games::dead_mans_draw::card::Card;
 
 #[component]
-pub fn DeckView(card_count: usize) -> Element {
+pub fn DeckView(card_count: usize, revealed_next_card: Option<Card>) -> Element {
     rsx! {
         div {
             class: "flex flex-col items-center gap-2",
@@ -32,6 +33,16 @@ pub fn DeckView(card_count: usize) -> Element {
                         class: "text-xs font-bold tracking-widest text-white/70",
                         "DECK"
                     }
+                }
+            }
+
+            if let Some(card) = revealed_next_card {
+                div {
+                    class: "
+                        rounded-xl bg-amber-300 px-3 py-2
+                        text-center text-xs font-bold text-slate-900
+                    ",
+                    "Next: {card.suit:?} {card.value}"
                 }
             }
         }

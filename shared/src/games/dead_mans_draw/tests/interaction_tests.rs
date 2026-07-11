@@ -138,10 +138,7 @@ fn hook_replays_anchor_and_sets_anchor_index() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Oracle, 5),
-            card(Suit::Hook, 4),
-        ],
+        vec![card(Suit::Oracle, 5), card(Suit::Hook, 4)],
         None,
     );
 
@@ -168,10 +165,7 @@ fn map_replays_anchor_and_sets_anchor_index() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Oracle, 5),
-            card(Suit::Map, 4),
-        ],
+        vec![card(Suit::Oracle, 5), card(Suit::Map, 4)],
         None,
     );
 

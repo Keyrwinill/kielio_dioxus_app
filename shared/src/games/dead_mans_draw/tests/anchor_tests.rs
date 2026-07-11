@@ -1,16 +1,10 @@
 use super::helpers::*;
 
 use crate::games::dead_mans_draw::abilities::{
-    ability::Ability,
-    anchor::AnchorAbility,
-    context::AbilityContext,
+    ability::Ability, anchor::AnchorAbility, context::AbilityContext,
 };
 
-use crate::games::dead_mans_draw::{
-    engine::resolve_bust,
-    player::Player,
-    state::{GameState},
-};
+use crate::games::dead_mans_draw::{engine::resolve_bust, player::Player, state::GameState};
 
 #[test]
 fn anchor_with_no_previous_cards_sets_anchor_index_to_zero() {
@@ -74,11 +68,26 @@ fn anchor_protected_cards_are_banked_when_later_card_busts() {
     assert_eq!(state.players[0].bank.len(), 3);
     assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Key));
     assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Chest));
-    assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Cannon && c.value == 5));
+    assert!(
+        state.players[0]
+            .bank
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 5)
+    );
 
     assert_eq!(state.discard.len(), 2);
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 6));
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Cannon && c.value == 7));
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Anchor && c.value == 6)
+    );
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 7)
+    );
 }
 
 #[test]
@@ -127,27 +136,27 @@ fn bust_with_anchor_as_first_card_banks_nothing() {
 
 #[test]
 fn bust_with_anchor_as_last_card_banks_previous_cards() {
-let mut state = GameState::empty();
+    let mut state = GameState::empty();
 
-setup_play_area(
-    &mut state,
-    vec![
-        card(Suit::Key, 2),
-        card(Suit::Chest, 3),
-        card(Suit::Anchor, 4),
-    ],
-    Some(2),
-);
+    setup_play_area(
+        &mut state,
+        vec![
+            card(Suit::Key, 2),
+            card(Suit::Chest, 3),
+            card(Suit::Anchor, 4),
+        ],
+        Some(2),
+    );
 
-resolve_bust(&mut state, "Bust".to_string());
+    resolve_bust(&mut state, "Bust".to_string());
 
-assert_eq!(state.players[0].bank.len(), 2);
+    assert_eq!(state.players[0].bank.len(), 2);
 
-assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Key));
-assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Chest));
+    assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Key));
+    assert!(state.players[0].bank.iter().any(|c| c.suit == Suit::Chest));
 
-assert_eq!(state.discard.len(), 1);
-assert_eq!(state.discard[0].suit, Suit::Anchor);
+    assert_eq!(state.discard.len(), 1);
+    assert_eq!(state.discard[0].suit, Suit::Anchor);
 }
 
 #[test]
@@ -214,8 +223,18 @@ fn anchor_banks_cards_before_anchor_when_later_bust_happens() {
     assert_eq!(state.players[0].bank[0].suit, Suit::Oracle);
 
     assert_eq!(state.discard.len(), 2);
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 4));
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 6));
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Anchor && c.value == 4)
+    );
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Anchor && c.value == 6)
+    );
 }
 
 #[test]
@@ -239,12 +258,32 @@ fn anchor_bust_banks_protected_cards_for_current_player_in_multiplayer_game() {
     resolve_bust(&mut state, "P2 busted.".to_string());
 
     assert_eq!(state.players[1].bank.len(), 2);
-    assert!(state.players[1].bank.iter().any(|c| c.suit == Suit::Hook && c.value == 3));
-    assert!(state.players[1].bank.iter().any(|c| c.suit == Suit::Map && c.value == 4));
+    assert!(
+        state.players[1]
+            .bank
+            .iter()
+            .any(|c| c.suit == Suit::Hook && c.value == 3)
+    );
+    assert!(
+        state.players[1]
+            .bank
+            .iter()
+            .any(|c| c.suit == Suit::Map && c.value == 4)
+    );
 
     assert_eq!(state.discard.len(), 2);
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Anchor && c.value == 5));
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Hook && c.value == 9));
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Anchor && c.value == 5)
+    );
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Hook && c.value == 9)
+    );
 
     assert_eq!(state.current_player_index, 2);
 }

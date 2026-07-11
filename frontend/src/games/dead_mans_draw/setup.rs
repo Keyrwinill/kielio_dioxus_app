@@ -1,9 +1,6 @@
 use dioxus::prelude::*;
 
-use shared::games::dead_mans_draw::{
-    player::Player,
-    state::GameConfig,
-};
+use shared::games::dead_mans_draw::{player::Player, state::GameConfig, variant::GameVariant};
 
 #[derive(Clone)]
 struct PlayerSetup {
@@ -26,9 +23,7 @@ fn default_player(index: usize) -> PlayerSetup {
 }
 
 #[component]
-pub fn DeadMansDrawSetup(
-    on_start: EventHandler<GameConfig>,
-) -> Element {
+pub fn DeadMansDrawSetup(on_start: EventHandler<GameConfig>) -> Element {
     let mut players = use_signal(|| {
         vec![
             PlayerSetup {
@@ -41,6 +36,8 @@ pub fn DeadMansDrawSetup(
             },
         ]
     });
+
+    let mut selected_variant = use_signal(|| GameVariant::Base);
 
     rsx! {
         div {
@@ -141,9 +138,30 @@ pub fn DeadMansDrawSetup(
             }
 
             button {
+                class: if selected_variant() == GameVariant::Base {
+                    "rounded-xl bg-amber-300 px-4 py-2 font-bold text-slate-900"
+                } else {
+                    "rounded-xl bg-white/10 px-4 py-2 font-bold text-white hover:bg-white/20"
+                },
+                onclick: move |_| selected_variant.set(GameVariant::Base),
+                "Base"
+            }
+
+            button {
+                class: if selected_variant() == GameVariant::Mermaid {
+                    "rounded-xl bg-amber-300 px-4 py-2 font-bold text-slate-900"
+                } else {
+                    "rounded-xl bg-white/10 px-4 py-2 font-bold text-white hover:bg-white/20"
+                },
+                onclick: move |_| selected_variant.set(GameVariant::Mermaid),
+                "Mermaid Variant"
+            }
+
+            button {
                 class: "
-                    mt-5 rounded-xl bg-amber-300 px-5 py-2
-                    font-bold text-slate-900 hover:bg-amber-200
+                    mt-6 w-full rounded-xl bg-amber-300 px-6 py-3
+                    text-lg font-extrabold text-slate-900 shadow-lg
+                    hover:bg-amber-200
                 ",
                 onclick: move |_| {
                     let game_players = players()
@@ -161,6 +179,7 @@ pub fn DeadMansDrawSetup(
 
                     on_start.call(GameConfig {
                         players: game_players,
+                        variant: selected_variant(),
                     });
                 },
                 "Start Game"

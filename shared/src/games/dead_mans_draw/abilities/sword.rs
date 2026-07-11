@@ -1,14 +1,16 @@
-use crate::games::dead_mans_draw::engine::{ReplayResult, add_card_to_play_area, append_extra_message, finish_pending_selection, replay_card_to_play_area};
+use crate::games::dead_mans_draw::engine::{
+    ReplayResult, add_card_to_play_area, append_extra_message, finish_pending_selection,
+    replay_card_to_play_area,
+};
 
-use super::ability::Ability;
-use super::context::AbilityContext;
 use super::super::ai::best_valid_opponent_bank_card;
 use super::super::engine::{resolve_bust, resolve_drawn_card_effect};
 use super::super::rules::has_busted;
 use super::super::state::{
-    GamePhase, GameState, PendingAbility, PendingSelection,
-    SelectionOwner, SelectionSource,
+    GamePhase, GameState, PendingAbility, PendingSelection, SelectionOwner, SelectionSource,
 };
+use super::ability::Ability;
+use super::context::AbilityContext;
 
 pub struct SwordAbility;
 
@@ -31,11 +33,7 @@ impl Ability for SwordAbility {
     }
 }
 
-pub fn resolve_sword(
-    state: &mut GameState,
-    target_player_index: usize,
-    target_card_index: usize,
-) {
+pub fn resolve_sword(state: &mut GameState, target_player_index: usize, target_card_index: usize) {
     if state.phase != GamePhase::WaitingForSwordTarget {
         state.add_log("No Sword target is currently needed.");
         return;
@@ -73,8 +71,7 @@ pub fn resolve_sword(
         ReplayResult::Busted => {
             let message = format!(
                 "Sword stole {:?} {}, but you busted. Protected cards were banked.",
-                stolen.suit,
-                stolen.value
+                stolen.suit, stolen.value
             );
 
             resolve_bust(state, message);
@@ -84,8 +81,7 @@ pub fn resolve_sword(
         ReplayResult::Continued { extra_message } => {
             let mut message = format!(
                 "Sword stole {:?} {} into the play area.",
-                stolen.suit,
-                stolen.value
+                stolen.suit, stolen.value
             );
 
             append_extra_message(&mut message, extra_message);
@@ -97,17 +93,12 @@ pub fn resolve_sword(
 
 pub fn auto_resolve_sword_for_ai(state: &mut GameState) -> Option<String> {
     for opponent_index in state.opponent_indices() {
-        let Some(card_index) =
-            best_valid_opponent_bank_card(state, opponent_index, |index| {
-                let card = &state.players[opponent_index].bank[index];
+        let Some(card_index) = best_valid_opponent_bank_card(state, opponent_index, |index| {
+            let card = &state.players[opponent_index].bank[index];
 
-                state.is_top_card_of_suit_stack(opponent_index, index)
-                    && !state.player_bank_has_suit(
-                        state.current_player_index,
-                        card.suit,
-                    )
-            })
-        else {
+            state.is_top_card_of_suit_stack(opponent_index, index)
+                && !state.player_bank_has_suit(state.current_player_index, card.suit)
+        }) else {
             continue;
         };
 
@@ -117,8 +108,7 @@ pub fn auto_resolve_sword_for_ai(state: &mut GameState) -> Option<String> {
         if has_busted(state) {
             let message = format!(
                 "AI Sword stole {:?} {}, but busted. Protected cards were banked.",
-                stolen.suit,
-                stolen.value
+                stolen.suit, stolen.value
             );
 
             resolve_bust(state, message);
@@ -127,8 +117,7 @@ pub fn auto_resolve_sword_for_ai(state: &mut GameState) -> Option<String> {
 
         let mut message = format!(
             "AI Sword stole {:?} {} into the play area.",
-            stolen.suit,
-            stolen.value
+            stolen.suit, stolen.value
         );
 
         if let Some(extra_message) = resolve_drawn_card_effect(state, &stolen) {

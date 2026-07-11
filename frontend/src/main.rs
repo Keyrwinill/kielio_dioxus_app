@@ -1,16 +1,16 @@
 mod app;
 mod components;
+mod data;
+mod games;
+mod models;
 mod pages;
 mod services;
-mod data;
-mod models;
-mod games;
 
 fn main() {
     dioxus::launch(app::App);
 }
 
-/* Initial 
+/* Initial
 use dioxus::prelude::*;
 use shared::NameResponse;
 

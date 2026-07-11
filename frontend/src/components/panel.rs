@@ -1,10 +1,7 @@
 use dioxus::prelude::*;
 
 #[component]
-pub fn Panel(
-    title: String,
-    children: Element,
-) -> Element {
+pub fn Panel(title: String, children: Element) -> Element {
     rsx! {
         div {
             class: "

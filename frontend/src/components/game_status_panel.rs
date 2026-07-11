@@ -1,9 +1,15 @@
 use dioxus::prelude::*;
 
 use shared::games::dead_mans_draw::state::{GamePhase, GameState};
+use shared::games::dead_mans_draw::variant::GameVariant;
 
 #[component]
 pub fn GameStatusPanel(state: GameState) -> Element {
+    let variant_name = match state.variant {
+        GameVariant::Base => "Base",
+        GameVariant::Mermaid => "Mermaid Variant",
+    };
+
     let current_player = state.current_player();
 
     let status_title = if state.game_over {
@@ -17,6 +23,7 @@ pub fn GameStatusPanel(state: GameState) -> Element {
             GamePhase::WaitingForHookTarget => "🪝 Choose Hook target",
             GamePhase::WaitingForMapTarget => "🗺️ Choose Map card",
             GamePhase::WaitingForSwordTarget => "⚔️ Choose Sword target",
+            GamePhase::WaitingForMermaidTarget => "🧜 Choose Mermaid target",
             GamePhase::GameOver => "🏁 Game Over",
         }
     };
@@ -33,6 +40,7 @@ pub fn GameStatusPanel(state: GameState) -> Element {
         GamePhase::WaitingForHookTarget => "Choose one of your top bank cards to replay.",
         GamePhase::WaitingForMapTarget => "Choose one revealed discard card to replay.",
         GamePhase::WaitingForSwordTarget => "Choose an opponent card to steal.",
+        GamePhase::WaitingForMermaidTarget => "Choose a play area card for Mermaid.",
         GamePhase::GameOver => "Start a new game.",
     };
 
@@ -75,6 +83,12 @@ pub fn GameStatusPanel(state: GameState) -> Element {
                     class: "rounded-xl bg-black/20 p-3",
                     div { class: "text-white/50", "Discard" }
                     div { class: "font-bold", "{state.discard.len()}" }
+                }
+
+                div {
+                    class: "rounded-xl bg-black/20 p-3",
+                    div { class: "text-white/50", "Variant" }
+                    div { class: "font-bold", "{variant_name}" }
                 }
             }
         }

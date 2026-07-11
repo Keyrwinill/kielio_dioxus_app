@@ -1,14 +1,12 @@
-use crate::dto::GameAction;
+use super::abilities::{
+    cannon::resolve_cannon, hook::resolve_hook, map::resolve_map, registry::execute_card_ability,
+    sword::resolve_sword,
+};
 use super::card::Suit;
 use super::rules::{has_busted, would_bust};
 use super::state::{GamePhase, GameState};
-use super::abilities::{
-    registry::execute_card_ability,
-    cannon::resolve_cannon,
-    hook::resolve_hook,
-    map::resolve_map,
-    sword::resolve_sword,
-};
+use crate::dto::GameAction;
+use crate::games::dead_mans_draw::abilities::mermaid::resolve_mermaid;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DrawMode {
@@ -19,9 +17,7 @@ pub enum DrawMode {
 #[derive(Debug, Clone)]
 pub enum ReplayResult {
     Busted,
-    Continued {
-        extra_message: Option<String>,
-    },
+    Continued { extra_message: Option<String> },
 }
 
 pub fn draw_card(state: &mut GameState) {
@@ -41,7 +37,12 @@ pub fn draw_card_internal(state: &mut GameState, mode: DrawMode) {
     state.revealed_next_card = None;
 
     let Some(card) = state.deck.pop() else {
-        end_game(state);
+        if state.play_area.is_empty() {
+            end_game(state);
+        } else {
+            state.add_log("Deck is empty. Bank your cards to finish the game.");
+        }
+
         return;
     };
 
@@ -77,11 +78,8 @@ pub fn draw_card_internal(state: &mut GameState, mode: DrawMode) {
 
     state.add_log(message);
 
-    //To be checked
     if state.deck.is_empty() && state.kraken_required_cards > 0 {
-        state.add_log(
-            "Deck ended before Kraken could be completed.".to_string()
-        );
+        state.add_log("Deck ended before Kraken could be completed.".to_string());
 
         state.kraken_required_cards = 0;
         end_game(state);
@@ -127,6 +125,11 @@ pub fn handle_action(state: &mut GameState, action: GameAction) {
             target_card_index,
         } => {
             resolve_sword(state, target_player_index, target_card_index);
+        }
+        GameAction::SelectMermaidTarget { target_card_index } => {
+            if let Err(message) = resolve_mermaid(state, target_card_index) {
+                state.add_log(message);
+            }
         }
     }
 }
@@ -183,10 +186,7 @@ pub fn bank_cards(state: &mut GameState) {
             bonus_count,
         ));
     } else {
-        state.add_log(format!(
-            "{} banked cards.",
-            state.current_player().name,
-        ));
+        state.add_log(format!("{} banked cards.", state.current_player().name,));
     }
 
     if state.deck.is_empty() {
@@ -250,9 +250,7 @@ pub fn replay_card_to_play_area(
 
     let extra_message = resolve_drawn_card_effect(state, &card);
 
-    ReplayResult::Continued {
-        extra_message,
-    }
+    ReplayResult::Continued { extra_message }
 }
 
 pub fn add_card_to_play_area(

@@ -1,4 +1,3 @@
-
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum GameRoute {
     DeadMansDraw,
@@ -57,11 +56,13 @@ impl GameStatus {
 
     pub fn badge_class(self) -> &'static str {
         match self {
-            GameStatus::Ready =>
-                "rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white",
+            GameStatus::Ready => {
+                "rounded-full bg-emerald-600 px-3 py-1 text-xs font-bold text-white"
+            }
 
-            GameStatus::ComingSoon =>
-                "rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-slate-900",
+            GameStatus::ComingSoon => {
+                "rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-slate-900"
+            }
         }
     }
 

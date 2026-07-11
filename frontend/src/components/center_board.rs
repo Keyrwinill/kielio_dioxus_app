@@ -1,5 +1,6 @@
 use dioxus::prelude::*;
 
+use shared::dto::GameAction;
 use shared::games::dead_mans_draw::state::GameState;
 
 use crate::components::deck_view::DeckView;
@@ -12,6 +13,7 @@ use crate::components::play_area_view::PlayAreaView;
 pub fn CenterBoard(
     state: GameState,
     on_select_map_target: EventHandler<usize>,
+    on_select_mermaid_target: EventHandler<usize>,
 ) -> Element {
     rsx! {
         div {
@@ -22,7 +24,8 @@ pub fn CenterBoard(
                     title: "Deck".to_string(),
 
                     DeckView {
-                        card_count: state.deck.len()
+                        card_count: state.deck.len(),
+                        revealed_next_card: state.revealed_next_card.clone(),
                     }
                 }
             }
@@ -35,6 +38,8 @@ pub fn CenterBoard(
 
                     PlayAreaView {
                         cards: state.play_area.clone(),
+                        phase: state.phase.clone(),
+                        on_select_mermaid_target,
                     }
 
                     if !state.map_choices.is_empty() {

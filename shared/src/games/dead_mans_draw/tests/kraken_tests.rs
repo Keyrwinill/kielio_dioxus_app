@@ -1,6 +1,9 @@
 use super::helpers::*;
 
-use crate::games::dead_mans_draw::{abilities::{ability::Ability, context::AbilityContext, kraken::KrakenAbility}, engine::add_card_to_play_area};
+use crate::games::dead_mans_draw::{
+    abilities::{ability::Ability, context::AbilityContext, kraken::KrakenAbility},
+    engine::add_card_to_play_area,
+};
 
 #[test]
 fn kraken_requires_two_more_cards_before_banking() {
@@ -86,13 +89,7 @@ fn kraken_requirement_is_cleared_after_bust() {
 
     state.kraken_required_cards = 2;
 
-    setup_play_area(
-        &mut state,
-        vec![
-            card(Suit::Cannon, 3),
-        ],
-        None,
-    );
+    setup_play_area(&mut state, vec![card(Suit::Cannon, 3)], None);
 
     state.deck.clear();
     state.deck.push(card(Suit::Cannon, 8));

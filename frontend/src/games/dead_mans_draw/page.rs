@@ -1,28 +1,20 @@
 use dioxus::prelude::*;
 
 use shared::dto::GameAction;
-use shared::games::dead_mans_draw::state::{GameConfig, GameState};
 use shared::games::dead_mans_draw::scoring::{score_player, winner_index};
+use shared::games::dead_mans_draw::state::{GameConfig, GameState};
 
 use crate::games::dead_mans_draw::setup::DeadMansDrawSetup;
 
 use crate::components::{
-    app_layout::AppLayout,
-    game_toolbar::GameToolbar,
-    player_panel::PlayerPanel,
-    panel::Panel,
-    center_board::CenterBoard,
-    game_status_panel::GameStatusPanel,
-    game_log_panel::GameLogPanel,
-    scoreboard_panel::ScoreboardPanel,
+    app_layout::AppLayout, center_board::CenterBoard, game_log_panel::GameLogPanel,
+    game_status_panel::GameStatusPanel, game_toolbar::GameToolbar, panel::Panel,
+    player_panel::PlayerPanel, scoreboard_panel::ScoreboardPanel,
 };
 use crate::services::api::{fetch_game, send_action};
 
-
 #[component]
-pub fn DeadMansDrawPage(
-    
-) -> Element {
+pub fn DeadMansDrawPage() -> Element {
     let mut game = use_signal(|| None::<GameState>);
     let mut show_setup = use_signal(|| true);
 
@@ -62,7 +54,9 @@ pub fn DeadMansDrawPage(
                     on_draw: move |_| do_action(GameAction::Draw),
                     on_bank: move |_| do_action(GameAction::Bank),
                     on_ai: move |_| do_action(GameAction::AiTurn),
-                    on_new_game: move |_| do_action(GameAction::NewGame),
+                    on_new_game: move |_| {
+                        show_setup.set(true);
+                    },
                     on_select_cannon_target: move |(player_index, card_index)| {
                         do_action(GameAction::SelectCannonTarget {
                             target_player_index: player_index,
@@ -82,6 +76,11 @@ pub fn DeadMansDrawPage(
                     on_select_sword_target: move |(player_index, card_index)| {
                         do_action(GameAction::SelectSwordTarget {
                             target_player_index: player_index,
+                            target_card_index: card_index,
+                        })
+                    },
+                    on_select_mermaid_target: move |card_index| {
+                        do_action(GameAction::SelectMermaidTarget {
                             target_card_index: card_index,
                         })
                     },
@@ -106,6 +105,7 @@ fn DeadMansDrawView(
     on_select_hook_target: EventHandler<usize>,
     on_select_map_target: EventHandler<usize>,
     on_select_sword_target: EventHandler<(usize, usize)>,
+    on_select_mermaid_target: EventHandler<usize>,
 ) -> Element {
     let is_ai_turn = state.current_player().is_ai;
     let has_cards_in_play = !state.play_area.is_empty();
@@ -117,7 +117,7 @@ fn DeadMansDrawView(
 
             div {
                 class: "rounded-2xl bg-emerald-900 p-4 font-sans",
-                
+
                 div {
                     class: "mb-4 text-center",
 
@@ -218,6 +218,7 @@ fn DeadMansDrawView(
                     CenterBoard {
                         state: state.clone(),
                         on_select_map_target,
+                        on_select_mermaid_target,
                     }
 
                     // Current player area

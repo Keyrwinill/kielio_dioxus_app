@@ -35,8 +35,7 @@ fn mermaid_scores_highest_mermaid_only() {
         value: 9,
     });
 
-    let score =
-        crate::games::dead_mans_draw::scoring::score_player(&state, 0);
+    let score = crate::games::dead_mans_draw::scoring::score_player(&state, 0);
 
     assert_eq!(score, 9);
 }

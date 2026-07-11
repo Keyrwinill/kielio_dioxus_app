@@ -56,8 +56,7 @@ fn scoring_uses_highest_card_per_suit() {
         value: 5,
     });
 
-    let score =
-        crate::games::dead_mans_draw::scoring::score_player(&state, 0);
+    let score = crate::games::dead_mans_draw::scoring::score_player(&state, 0);
 
     assert_eq!(score, 12);
 }
@@ -78,8 +77,7 @@ fn winner_is_player_with_highest_score_when_game_over() {
 
     state.game_over = true;
 
-    let winner =
-        crate::games::dead_mans_draw::scoring::winner_index(&state);
+    let winner = crate::games::dead_mans_draw::scoring::winner_index(&state);
 
     assert_eq!(winner, Some(1));
 }
@@ -135,6 +133,16 @@ fn bust_card_does_not_enter_play_area_or_activate_ability() {
 
     assert_eq!(state.play_area.len(), 0);
     assert_eq!(state.discard.len(), 2);
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Cannon && c.value == 2));
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Cannon && c.value == 7));
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 2)
+    );
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 7)
+    );
 }

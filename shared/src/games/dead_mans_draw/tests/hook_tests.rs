@@ -71,9 +71,7 @@ fn ai_hook_replays_safe_highest_banked_card() {
         value: 9,
     });
 
-    crate::games::dead_mans_draw::abilities::hook::auto_resolve_hook_for_ai(
-        &mut state,
-    );
+    crate::games::dead_mans_draw::abilities::hook::auto_resolve_hook_for_ai(&mut state);
 
     assert_eq!(state.players[1].bank.len(), 1);
     assert_eq!(state.play_area.len(), 2);

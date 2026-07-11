@@ -11,12 +11,12 @@ use super::oracle::OracleAbility;
 use super::sword::{self, SwordAbility};
 
 use crate::games::dead_mans_draw::card::{Card, Suit};
-use crate::games::dead_mans_draw::state::GameState;
+use crate::games::dead_mans_draw::state::{
+    GamePhase, GameState, PendingAbility, PendingSelection, SelectionSource,
+};
+use crate::games::dead_mans_draw::variant::GameVariant;
 
-pub fn execute_card_ability(
-    state: &mut GameState,
-    card: &Card,
-) -> Option<String> {
+pub fn execute_card_ability(state: &mut GameState, card: &Card) -> Option<String> {
     match card.suit {
         Suit::Oracle => execute::<OracleAbility>(state, card),
         Suit::Anchor => execute::<AnchorAbility>(state, card),
@@ -56,14 +56,28 @@ pub fn execute_card_ability(
             }
         }
 
-        Suit::Mermaid => None,
+        Suit::Mermaid => {
+            if state.variant != GameVariant::Mermaid {
+                return None;
+            }
+
+            if state.play_area.len() <= 1 {
+                return Some("Mermaid has no valid target.".to_string());
+            }
+
+            state.pending_ability = Some(PendingAbility::Mermaid);
+            state.pending_selection = Some(PendingSelection {
+                source: SelectionSource::PlayArea,
+                prompt: "Choose a play area card for Mermaid.".to_string(),
+            });
+            state.phase = GamePhase::WaitingForMermaidTarget;
+
+            return Some("Choose a play area card for Mermaid.".to_string());
+        }
     }
 }
 
-fn execute<A: Ability>(
-    state: &mut GameState,
-    card: &Card,
-) -> Option<String> {
+fn execute<A: Ability>(state: &mut GameState, card: &Card) -> Option<String> {
     let mut ctx = AbilityContext {
         state,
         card: card.clone(),

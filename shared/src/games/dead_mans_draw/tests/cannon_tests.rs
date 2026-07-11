@@ -1,11 +1,10 @@
 use super::helpers::*;
 
+use crate::games::dead_mans_draw::engine::bank_cards;
 use crate::games::dead_mans_draw::state::PendingAbility;
 
 use crate::games::dead_mans_draw::{
-    abilities::cannon::resolve_cannon,
-    player::Player,
-    state::{GameState},
+    abilities::cannon::resolve_cannon, player::Player, state::GameState,
 };
 
 #[test]
@@ -77,9 +76,7 @@ fn ai_cannon_targets_only_top_suit_stack_card() {
         value: 7,
     });
 
-    crate::games::dead_mans_draw::abilities::cannon::auto_resolve_cannon_for_ai(
-        &mut state,
-    );
+    crate::games::dead_mans_draw::abilities::cannon::auto_resolve_cannon_for_ai(&mut state);
 
     assert_eq!(state.players[0].bank.len(), 1);
     assert_eq!(state.players[0].bank[0].value, 2);
@@ -135,4 +132,34 @@ fn cannon_can_destroy_top_card_from_any_opponent_in_multiplayer_game() {
 
     assert_eq!(state.phase, GamePhase::PlayerTurn);
     assert!(state.pending_ability.is_none());
+}
+
+#[test]
+fn can_bank_after_resolving_cannon_drawn_as_last_card() {
+    let mut state = GameState::empty();
+
+    state.deck.clear();
+
+    state.play_area = vec![Card {
+        suit: Suit::Cannon,
+        value: 5,
+    }];
+
+    state.players[1].bank = vec![Card {
+        suit: Suit::Anchor,
+        value: 4,
+    }];
+
+    state.phase = GamePhase::WaitingForCannonTarget;
+    state.pending_ability = Some(PendingAbility::Cannon);
+
+    resolve_cannon(&mut state, 1, 0);
+
+    assert_eq!(state.phase, GamePhase::PlayerTurn);
+    assert!(state.pending_ability.is_none());
+    assert!(state.pending_selection.is_none());
+
+    bank_cards(&mut state);
+
+    assert!(state.game_over);
 }

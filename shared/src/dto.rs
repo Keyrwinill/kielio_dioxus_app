@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::games::dead_mans_draw::state::{GameState, GameConfig};
+use crate::games::dead_mans_draw::state::{GameConfig, GameState};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameResponse {
@@ -28,6 +28,9 @@ pub enum GameAction {
     },
     SelectSwordTarget {
         target_player_index: usize,
+        target_card_index: usize,
+    },
+    SelectMermaidTarget {
         target_card_index: usize,
     },
 }

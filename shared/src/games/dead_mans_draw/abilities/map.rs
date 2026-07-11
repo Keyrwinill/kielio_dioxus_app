@@ -1,20 +1,19 @@
-use rand::seq::SliceRandom;
 use rand::rng;
+use rand::seq::SliceRandom;
 
-use crate::games::dead_mans_draw::engine::{ReplayResult, add_card_to_play_area, append_extra_message, finish_pending_selection, replay_card_to_play_area};
+use crate::games::dead_mans_draw::engine::{
+    ReplayResult, add_card_to_play_area, append_extra_message, finish_pending_selection,
+    replay_card_to_play_area,
+};
 
-use super::ability::Ability;
-use super::context::AbilityContext;
 use super::super::ai::best_safe_card_index_from_list;
 use super::super::engine::{resolve_bust, resolve_drawn_card_effect};
 use super::super::rules::has_busted;
 use super::super::state::{
-    GamePhase, 
-    GameState, 
-    PendingAbility, 
-    PendingSelection,
-    SelectionSource,
+    GamePhase, GameState, PendingAbility, PendingSelection, SelectionSource,
 };
+use super::ability::Ability;
+use super::context::AbilityContext;
 
 pub struct MapAbility;
 
@@ -69,8 +68,7 @@ pub fn resolve_map(state: &mut GameState, target_card_index: usize) {
         ReplayResult::Busted => {
             let message = format!(
                 "Map replayed {:?} {}, but you busted. Protected cards were banked.",
-                chosen.suit,
-                chosen.value
+                chosen.suit, chosen.value
             );
 
             resolve_bust(state, message);
@@ -78,11 +76,7 @@ pub fn resolve_map(state: &mut GameState, target_card_index: usize) {
         }
 
         ReplayResult::Continued { extra_message } => {
-            let mut message = format!(
-                "Map replayed {:?} {}.",
-                chosen.suit,
-                chosen.value
-            );
+            let mut message = format!("Map replayed {:?} {}.", chosen.suit, chosen.value);
 
             append_extra_message(&mut message, extra_message);
 
@@ -104,9 +98,7 @@ pub fn auto_resolve_map_for_ai(state: &mut GameState) -> Option<String> {
         }
     }
 
-    let Some(choice_index) =
-        best_safe_card_index_from_list(&state.map_choices, state)
-    else {
+    let Some(choice_index) = best_safe_card_index_from_list(&state.map_choices, state) else {
         while let Some(card) = state.map_choices.pop() {
             state.discard.push(card);
         }
@@ -124,8 +116,7 @@ pub fn auto_resolve_map_for_ai(state: &mut GameState) -> Option<String> {
 
     let mut message = format!(
         "AI Map replayed {:?} {} from discard.",
-        chosen.suit,
-        chosen.value
+        chosen.suit, chosen.value
     );
 
     if let Some(extra_message) = resolve_drawn_card_effect(state, &chosen) {

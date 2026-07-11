@@ -1,9 +1,7 @@
 use super::helpers::*;
 
 use crate::games::dead_mans_draw::abilities::{
-    ability::Ability,
-    context::AbilityContext,
-    map::MapAbility,
+    ability::Ability, context::AbilityContext, map::MapAbility,
 };
 
 #[test]
@@ -89,9 +87,7 @@ fn ai_map_replays_safe_highest_revealed_discard_card() {
         value: 7,
     });
 
-    crate::games::dead_mans_draw::abilities::map::auto_resolve_map_for_ai(
-        &mut state,
-    );
+    crate::games::dead_mans_draw::abilities::map::auto_resolve_map_for_ai(&mut state);
 
     assert_eq!(state.play_area.len(), 2);
     assert_eq!(state.play_area[1].suit, Suit::Mermaid);

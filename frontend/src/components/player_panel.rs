@@ -20,23 +20,17 @@ pub fn PlayerPanel(
     let can_select_from_this_player = state.can_select_player_bank(player_index);
     let phase = state.phase.clone();
 
-    let mut display_bank: Vec<(usize, _)> = player
-        .bank
-        .iter()
-        .cloned()
-        .enumerate()
-        .collect();
+    let mut display_bank: Vec<(usize, _)> = player.bank.iter().cloned().enumerate().collect();
 
-    display_bank.sort_by_key(|(_, card)| {
-        (
-            card.suit.sort_order(),
-            std::cmp::Reverse(card.value),
-        )
-    });
+    display_bank.sort_by_key(|(_, card)| (card.suit.sort_order(), std::cmp::Reverse(card.value)));
 
     rsx! {
         div {
-            class: "mt-3 rounded-2xl border border-white/20 bg-white/10 p-4",
+            class: if is_current_player {
+                "mt-3 rounded-2xl border-2 border-amber-300 bg-emerald-700/60 p-4 shadow-lg shadow-amber-900/30"
+            } else {
+                "mt-3 rounded-2xl border border-white/20 bg-white/10 p-4"
+            },
 
             div {
                 class: "mb-3 flex items-start justify-between gap-3",

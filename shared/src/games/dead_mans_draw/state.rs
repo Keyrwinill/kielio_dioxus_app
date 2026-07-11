@@ -4,6 +4,7 @@ use crate::games::dead_mans_draw::deck::create_game_deck;
 
 use super::card::Card;
 use super::player::Player;
+use super::variant::GameVariant;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum GamePhase {
@@ -12,6 +13,7 @@ pub enum GamePhase {
     WaitingForHookTarget,
     WaitingForMapTarget,
     WaitingForSwordTarget,
+    WaitingForMermaidTarget,
     GameOver,
 }
 
@@ -20,6 +22,7 @@ pub enum TargetType {
     OpponentBank,
     OwnBank,
     Discard,
+    PlayArea,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -28,6 +31,7 @@ pub enum PendingAbility {
     Hook,
     Map,
     Sword,
+    Mermaid,
 }
 
 impl PendingAbility {
@@ -37,6 +41,7 @@ impl PendingAbility {
             PendingAbility::Sword => TargetType::OpponentBank,
             PendingAbility::Hook => TargetType::OwnBank,
             PendingAbility::Map => TargetType::Discard,
+            PendingAbility::Mermaid => TargetType::PlayArea,
         }
     }
 }
@@ -52,6 +57,7 @@ pub enum SelectionSource {
     PlayerBank { owner: SelectionOwner },
     Discard,
     MapChoices,
+    PlayArea,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -78,6 +84,7 @@ pub struct GameState {
     pub pending_selection: Option<PendingSelection>,
     pub kraken_required_cards: usize,
     pub anchor_index: Option<usize>,
+    pub variant: GameVariant,
 }
 
 impl GameState {
@@ -103,6 +110,7 @@ impl GameState {
             pending_selection: None,
             kraken_required_cards: 0,
             anchor_index: None,
+            variant: GameVariant::Base,
         }
     }
 
@@ -112,7 +120,7 @@ impl GameState {
             "Dead Man's Draw requires 2 to 4 players."
         );
 
-        let (deck, discard) = create_game_deck();
+        let (deck, discard) = create_game_deck(config.variant);
 
         Self {
             deck,
@@ -131,6 +139,7 @@ impl GameState {
             pending_selection: None,
             kraken_required_cards: 0,
             anchor_index: None,
+            variant: config.variant,
         }
     }
 
@@ -150,8 +159,7 @@ impl GameState {
         self.pending_ability = None;
         self.kraken_required_cards = 0;
 
-        self.current_player_index =
-            (self.current_player_index + 1) % self.players.len();
+        self.current_player_index = (self.current_player_index + 1) % self.players.len();
 
         self.add_log(format!("{}'s turn.", self.current_player().name));
     }
@@ -160,9 +168,7 @@ impl GameState {
         self.players
             .iter()
             .enumerate()
-            .any(|(index, player)| {
-                index != self.current_player_index && !player.bank.is_empty()
-            })
+            .any(|(index, player)| index != self.current_player_index && !player.bank.is_empty())
     }
 
     pub fn add_log(&mut self, message: impl Into<String>) {
@@ -174,8 +180,7 @@ impl GameState {
     pub fn is_waiting_for_opponent_bank_target(&self) -> bool {
         matches!(
             self.phase,
-            GamePhase::WaitingForCannonTarget
-                | GamePhase::WaitingForSwordTarget
+            GamePhase::WaitingForCannonTarget | GamePhase::WaitingForSwordTarget
         )
     }
 
@@ -185,24 +190,15 @@ impl GameState {
                 source: SelectionSource::PlayerBank { owner },
                 ..
             }) => match owner {
-                SelectionOwner::CurrentPlayer => {
-                    player_index == self.current_player_index
-                }
-                SelectionOwner::Opponent => {
-                    player_index != self.current_player_index
-                }
-                
+                SelectionOwner::CurrentPlayer => player_index == self.current_player_index,
+                SelectionOwner::Opponent => player_index != self.current_player_index,
             },
 
             _ => false,
         }
     }
 
-    pub fn can_select_bank_card(
-        &self,
-        player_index: usize,
-        card_index: usize,
-    ) -> bool {
+    pub fn can_select_bank_card(&self, player_index: usize, card_index: usize) -> bool {
         if !self.can_select_player_bank(player_index) {
             return false;
         }
@@ -247,11 +243,7 @@ impl GameState {
             .any(|card| card.suit == suit)
     }
 
-    pub fn is_top_card_of_suit_stack(
-        &self,
-        player_index: usize,
-        card_index: usize,
-    ) -> bool {
+    pub fn is_top_card_of_suit_stack(&self, player_index: usize, card_index: usize) -> bool {
         let Some(card) = self.players[player_index].bank.get(card_index) else {
             return false;
         };
@@ -284,18 +276,23 @@ impl GameState {
                 player_index != self.current_player_index
                     && player.bank.iter().enumerate().any(|(card_index, card)| {
                         self.is_top_card_of_suit_stack(player_index, card_index)
-                            && !self.player_bank_has_suit(
-                                self.current_player_index,
-                                card.suit,
-                            )
+                            && !self.player_bank_has_suit(self.current_player_index, card.suit)
                     })
             })
+    }
+
+    pub fn can_select_discard_card(&self, card_index: usize) -> bool {
+        match self.pending_ability {
+            Some(PendingAbility::Mermaid) => self.discard.get(card_index).is_some(),
+            _ => false,
+        }
     }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GameConfig {
     pub players: Vec<Player>,
+    pub variant: GameVariant,
 }
 
 impl GameConfig {
@@ -307,10 +304,8 @@ impl GameConfig {
 impl Default for GameConfig {
     fn default() -> Self {
         Self {
-            players: vec![
-                Player::new("You", false),
-                Player::new("AI", true),
-            ],
+            players: vec![Player::new("You", false), Player::new("AI", true)],
+            variant: GameVariant::Base,
         }
     }
 }

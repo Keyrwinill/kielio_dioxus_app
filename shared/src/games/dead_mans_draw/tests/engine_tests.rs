@@ -1,9 +1,9 @@
 use super::helpers::*;
 
 use crate::games::dead_mans_draw::{
-    state::PendingAbility,
     player::Player,
-    state::{GameConfig, GamePhase, GameState},
+    state::{GameConfig, GamePhase, GameState, PendingAbility},
+    variant::GameVariant,
 };
 
 #[test]
@@ -29,11 +29,7 @@ fn drawing_last_card_does_not_end_game_before_banking() {
 fn drawing_last_card_that_busts_ends_game_after_bust_resolution() {
     let mut state = GameState::empty();
 
-    setup_play_area(
-        &mut state,
-        vec![card(Suit::Cannon, 3)],
-        None,
-    );
+    setup_play_area(&mut state, vec![card(Suit::Cannon, 3)], None);
 
     state.deck.clear();
     state.deck.push(card(Suit::Cannon, 8));
@@ -45,8 +41,18 @@ fn drawing_last_card_that_busts_ends_game_after_bust_resolution() {
 
     assert!(state.play_area.is_empty());
     assert_eq!(state.discard.len(), 2);
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Cannon && c.value == 3));
-    assert!(state.discard.iter().any(|c| c.suit == Suit::Cannon && c.value == 8));
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 3)
+    );
+    assert!(
+        state
+            .discard
+            .iter()
+            .any(|c| c.suit == Suit::Cannon && c.value == 8)
+    );
 }
 
 #[test]
@@ -130,6 +136,7 @@ fn new_game_with_config_supports_custom_players() {
             Player::new("AI 1", true),
             Player::new("AI 2", true),
         ],
+        variant: GameVariant::Base,
     });
 
     assert_eq!(state.players.len(), 3);
@@ -143,6 +150,7 @@ fn new_game_with_config_supports_custom_players() {
 fn new_game_with_config_rejects_one_player() {
     GameState::new_with_config(GameConfig {
         players: vec![Player::new("Solo", false)],
+        variant: GameVariant::Base,
     });
 }
 
@@ -157,6 +165,7 @@ fn new_game_with_config_rejects_five_players() {
             Player::new("P4", true),
             Player::new("P5", true),
         ],
+        variant: GameVariant::Base,
     });
 }
 
@@ -168,6 +177,7 @@ fn next_player_rotates_through_three_players() {
             Player::new("P2", true),
             Player::new("P3", true),
         ],
+        variant: GameVariant::Base,
     });
 
     assert_eq!(state.current_player_index, 0);
@@ -195,6 +205,7 @@ fn start_new_game_action_uses_configured_players() {
                     Player::new("Bob", false),
                     Player::new("AI 1", true),
                 ],
+                variant: GameVariant::Base,
             },
         },
     );

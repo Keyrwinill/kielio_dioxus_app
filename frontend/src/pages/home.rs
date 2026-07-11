@@ -1,11 +1,7 @@
 use dioxus::prelude::*;
 
 use crate::{
-    components::{
-        app_layout::AppLayout,
-        game_card::GameCard,
-        game_launcher::GameLauncher,
-    },
+    components::{app_layout::AppLayout, game_card::GameCard, game_launcher::GameLauncher},
     data::games::GAMES,
 };
 
@@ -46,14 +42,14 @@ pub fn HomePage() -> Element {
             div {
                 class: "grid gap-4 md:grid-cols-2",
 
-                for game in GAMES {                    
-                    
+                for game in GAMES {
+
                     GameCard {
                         title: game.title.to_string(),
                         category: game.category.label().to_string(),
                         description: game.description.to_string(),
                         status: game.status,
-                        player_count: game.player_count_label(),                        
+                        player_count: game.player_count_label(),
 
                         GameLauncher {
                             route: game.route,

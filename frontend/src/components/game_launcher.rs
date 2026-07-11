@@ -1,14 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::{
-    models::game_manifest::{GameRoute, GameStatus},
-};
+use crate::models::game_manifest::{GameRoute, GameStatus};
 
 #[component]
-pub fn GameLauncher(
-    route: GameRoute,
-    status: GameStatus,
-) -> Element {
+pub fn GameLauncher(route: GameRoute, status: GameStatus) -> Element {
     match status {
         GameStatus::Ready => rsx! {
             Link {

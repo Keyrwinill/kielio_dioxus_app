@@ -1,11 +1,9 @@
 use dioxus::prelude::*;
 
-use crate::models::game_manifest::GameRoute;
-use crate::games::dead_mans_draw::page::DeadMansDrawPage;
 use crate::games::beasty_bar::page::BeastyBarPage;
-use crate::pages::{
-    home::HomePage,
-};
+use crate::games::dead_mans_draw::page::DeadMansDrawPage;
+use crate::models::game_manifest::GameRoute;
+use crate::pages::home::HomePage;
 
 impl GameRoute {
     pub fn to_route(self) -> Route {

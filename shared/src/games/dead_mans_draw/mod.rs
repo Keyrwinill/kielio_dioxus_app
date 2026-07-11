@@ -4,9 +4,9 @@ pub mod card;
 pub mod deck;
 pub mod engine;
 pub mod player;
+pub mod rules;
 pub mod scoring;
 pub mod state;
-pub mod rules;
 pub mod variant;
 
 #[cfg(test)]

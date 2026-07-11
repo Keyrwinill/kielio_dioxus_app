@@ -1,17 +1,14 @@
 use axum::{
-    extract::{State, OriginalUri},
+    Json, Router,
+    extract::{OriginalUri, State},
     http::StatusCode,
     routing::{get, post},
-    Json, Router,
 };
 use std::sync::{Arc, Mutex};
 use tower_http::cors::CorsLayer;
 
 use shared::dto::{GameAction, GameResponse};
-use shared::games::dead_mans_draw::{
-    engine::handle_action,
-    state::GameState,
-};
+use shared::games::dead_mans_draw::{engine::handle_action, state::GameState};
 
 type AppState = Arc<Mutex<GameState>>;
 
@@ -75,7 +72,7 @@ async fn main() {
 
     let listener = TcpListener::bind(addr).await.unwrap();
     println!("Backend is running on {}", addr);
-    
+
     axum::serve(listener, app).await.unwrap();
 }
 */

@@ -1,11 +1,9 @@
 use super::helpers::*;
 
-use crate::games::dead_mans_draw::{abilities::{
-    ability::Ability,
-    chest::ChestAbility,
-    context::AbilityContext,
-    key::KeyAbility,
-}, player::Player};
+use crate::games::dead_mans_draw::{
+    abilities::{ability::Ability, chest::ChestAbility, context::AbilityContext, key::KeyAbility},
+    player::Player,
+};
 
 #[test]
 fn banking_chest_without_key_gets_no_bonus() {
@@ -13,10 +11,7 @@ fn banking_chest_without_key_gets_no_bonus() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Chest, 3),
-            card(Suit::Map, 5),
-        ],
+        vec![card(Suit::Chest, 3), card(Suit::Map, 5)],
         None,
     );
 
@@ -34,10 +29,7 @@ fn banking_key_without_chest_gets_no_bonus() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Key, 3),
-            card(Suit::Map, 5),
-        ],
+        vec![card(Suit::Key, 3), card(Suit::Map, 5)],
         None,
     );
 
@@ -55,11 +47,7 @@ fn banking_chest_and_key_claims_bonus_from_discard() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Chest, 3),
-            card(Suit::Key, 4),
-            card(Suit::Map, 5),
-        ],
+        vec![card(Suit::Chest, 3), card(Suit::Key, 4), card(Suit::Map, 5)],
         None,
     );
 
@@ -80,11 +68,7 @@ fn chest_and_key_claims_only_available_discard_cards() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Chest, 3),
-            card(Suit::Key, 4),
-            card(Suit::Map, 5),
-        ],
+        vec![card(Suit::Chest, 3), card(Suit::Key, 4), card(Suit::Map, 5)],
         None,
     );
 
@@ -128,10 +112,7 @@ fn chest_and_key_with_empty_discard_gives_no_bonus() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Chest, 3),
-            card(Suit::Key, 4),
-        ],
+        vec![card(Suit::Chest, 3), card(Suit::Key, 4)],
         None,
     );
 
@@ -191,11 +172,7 @@ fn key_and_chest_bonus_goes_to_current_player_in_multiplayer_game() {
 
     setup_play_area(
         &mut state,
-        vec![
-            card(Suit::Chest, 3),
-            card(Suit::Key, 4),
-            card(Suit::Map, 5),
-        ],
+        vec![card(Suit::Chest, 3), card(Suit::Key, 4), card(Suit::Map, 5)],
         None,
     );
 

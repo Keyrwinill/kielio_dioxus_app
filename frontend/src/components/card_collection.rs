@@ -27,11 +27,7 @@ pub fn CardCollection(
         "flex flex-nowrap gap-2 sm:gap-3"
     };
 
-    let spacing_class = if overlap {
-        "-ml-6 first:ml-0"
-    } else {
-        ""
-    };
+    let spacing_class = if overlap { "-ml-6 first:ml-0" } else { "" };
 
     rsx! {
         div {

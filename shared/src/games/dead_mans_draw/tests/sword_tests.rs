@@ -1,11 +1,9 @@
 use super::helpers::*;
 
-use crate::games::dead_mans_draw::state::PendingAbility;
 use crate::games::dead_mans_draw::abilities::{
-    ability::Ability,
-    context::AbilityContext,
-    sword::SwordAbility,
+    ability::Ability, context::AbilityContext, sword::SwordAbility,
 };
+use crate::games::dead_mans_draw::state::PendingAbility;
 
 #[test]
 fn sword_steals_selected_opponent_card_to_play_area() {
@@ -73,9 +71,7 @@ fn ai_sword_steals_valid_card_to_play_area() {
         value: 6,
     });
 
-    crate::games::dead_mans_draw::abilities::sword::auto_resolve_sword_for_ai(
-        &mut state,
-    );
+    crate::games::dead_mans_draw::abilities::sword::auto_resolve_sword_for_ai(&mut state);
 
     assert_eq!(state.players[0].bank.len(), 0);
     assert_eq!(state.play_area.len(), 1);

@@ -1,10 +1,9 @@
-use super::ability::Ability;
-use super::context::AbilityContext;
 use super::super::ai::best_valid_opponent_bank_card;
 use super::super::state::{
-    GamePhase, GameState, PendingAbility, PendingSelection,
-    SelectionOwner, SelectionSource,
+    GamePhase, GameState, PendingAbility, PendingSelection, SelectionOwner, SelectionSource,
 };
+use super::ability::Ability;
+use super::context::AbilityContext;
 
 pub struct CannonAbility;
 
@@ -27,11 +26,7 @@ impl Ability for CannonAbility {
     }
 }
 
-pub fn resolve_cannon(
-    state: &mut GameState,
-    target_player_index: usize,
-    target_card_index: usize,
-) {
+pub fn resolve_cannon(state: &mut GameState, target_player_index: usize, target_card_index: usize) {
     if state.phase != GamePhase::WaitingForCannonTarget {
         state.add_log("No Cannon target is currently needed.".to_string());
         return;
@@ -63,27 +58,23 @@ pub fn resolve_cannon(
 
     state.add_log(format!(
         "Cannon destroyed {:?} {}.",
-        removed.suit,
-        removed.value
+        removed.suit, removed.value
     ));
-    
+
     state.pending_selection = None;
 }
 
 pub fn auto_resolve_cannon_for_ai(state: &mut GameState) -> Option<String> {
     for opponent_index in state.opponent_indices() {
-        if let Some(card_index) = best_valid_opponent_bank_card(
-            state,
-            opponent_index,
-            |index| state.is_top_card_of_suit_stack(opponent_index, index),
-        ) {
+        if let Some(card_index) = best_valid_opponent_bank_card(state, opponent_index, |index| {
+            state.is_top_card_of_suit_stack(opponent_index, index)
+        }) {
             let removed = state.players[opponent_index].bank.remove(card_index);
             state.discard.push(removed.clone());
 
             return Some(format!(
                 "AI Cannon destroyed {:?} {}.",
-                removed.suit,
-                removed.value
+                removed.suit, removed.value
             ));
         }
     }

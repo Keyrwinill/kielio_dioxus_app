@@ -1,19 +1,19 @@
 use crate::games::dead_mans_draw::{card::Suit, state::GameState};
 
 use super::engine::{bank_cards, draw_card, handle_action};
+use super::state::PendingAbility;
 use crate::dto::GameAction;
-use super::state::{PendingAbility};
 
 //helpers
 pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
     match state.pending_ability {
         Some(PendingAbility::Cannon) => {
             for opponent_index in state.opponent_indices() {
-                if let Some(card_index) = best_valid_opponent_bank_card(
-                    state,
-                    opponent_index,
-                    |index| state.is_top_card_of_suit_stack(opponent_index, index),
-                ) {
+                if let Some(card_index) =
+                    best_valid_opponent_bank_card(state, opponent_index, |index| {
+                        state.is_top_card_of_suit_stack(opponent_index, index)
+                    })
+                {
                     handle_action(
                         state,
                         GameAction::SelectCannonTarget {
@@ -46,9 +46,7 @@ pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
         }
 
         Some(PendingAbility::Map) => {
-            if let Some(card_index) =
-                best_safe_card_index_from_list(&state.map_choices, state)
-            {
+            if let Some(card_index) = best_safe_card_index_from_list(&state.map_choices, state) {
                 handle_action(
                     state,
                     GameAction::SelectMapTarget {
@@ -64,21 +62,16 @@ pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
 
         Some(PendingAbility::Sword) => {
             for opponent_index in state.opponent_indices() {
-                if let Some(card_index) = best_valid_opponent_bank_card(
-                    state,
-                    opponent_index,
-                    |index| {
+                if let Some(card_index) =
+                    best_valid_opponent_bank_card(state, opponent_index, |index| {
                         let Some(card) = state.players[opponent_index].bank.get(index) else {
                             return false;
                         };
 
                         state.is_top_card_of_suit_stack(opponent_index, index)
-                            && !state.player_bank_has_suit(
-                                state.current_player_index,
-                                card.suit,
-                            )
-                    },
-                ) {
+                            && !state.player_bank_has_suit(state.current_player_index, card.suit)
+                    })
+                {
                     handle_action(
                         state,
                         GameAction::SelectSwordTarget {
@@ -92,6 +85,21 @@ pub fn resolve_ai_pending_ability(state: &mut GameState) -> bool {
             }
 
             skip_pending_ability(state, "AI Sword found no valid target.");
+            true
+        }
+
+        Some(PendingAbility::Mermaid) => {
+            if let Some(card_index) = best_mermaid_play_area_target(state) {
+                handle_action(
+                    state,
+                    GameAction::SelectMermaidTarget {
+                        target_card_index: card_index,
+                    },
+                );
+            } else {
+                skip_pending_ability(state, "AI Mermaid found no valid target.");
+            }
+
             true
         }
 
@@ -130,7 +138,6 @@ pub fn play_ai_turn(state: &mut GameState) {
 }
 
 fn should_bank(state: &GameState) -> bool {
-    
     if state.deck.is_empty() {
         return true;
     }
@@ -141,7 +148,7 @@ fn should_bank(state: &GameState) -> bool {
     if has_key && has_chest && !state.discard.is_empty() {
         return true;
     }
-    
+
     if state.kraken_required_cards > 0 {
         return false;
     }
@@ -194,9 +201,7 @@ pub fn best_valid_opponent_bank_card(
         .map(|(index, _)| index)
 }
 
-pub fn best_safe_own_bank_card(
-    state: &GameState,
-) -> Option<usize> {
+pub fn best_safe_own_bank_card(state: &GameState) -> Option<usize> {
     let current_player_index = state.current_player_index;
 
     state.players[current_player_index]
@@ -227,6 +232,16 @@ pub fn best_safe_card_index_from_list(
                 .iter()
                 .any(|play_card| play_card.suit == card.suit)
         })
+        .max_by_key(|(_, card)| card.value)
+        .map(|(index, _)| index)
+}
+
+pub fn best_mermaid_play_area_target(state: &GameState) -> Option<usize> {
+    state
+        .play_area
+        .iter()
+        .enumerate()
+        .filter(|(_, card)| card.suit != Suit::Mermaid)
         .max_by_key(|(_, card)| card.value)
         .map(|(index, _)| index)
 }

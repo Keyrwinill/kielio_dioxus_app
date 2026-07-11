@@ -9,7 +9,11 @@ fn new_game_starts_with_initial_discard_pile() {
 
     for suit in Suit::all() {
         assert_eq!(
-            state.discard.iter().filter(|card| card.suit == suit).count(),
+            state
+                .discard
+                .iter()
+                .filter(|card| card.suit == suit)
+                .count(),
             1
         );
     }
