@@ -8,7 +8,6 @@ use crate::games::dead_mans_draw::engine::{
 
 use super::super::ai::best_safe_card_index_from_list;
 use super::super::engine::{resolve_bust, resolve_drawn_card_effect};
-use super::super::rules::has_busted;
 use super::super::state::{
     GamePhase, GameState, PendingAbility, PendingSelection, SelectionSource,
 };
